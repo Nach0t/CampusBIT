@@ -1,0 +1,21 @@
+{
+    "name": "Campus Bit App",
+    "short_name": "CampusBit",
+    "description": "Aplicación Campus Bit para gestión de menús y compras",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#44337A",
+    "theme_color": "#71679C",
+    "icons": [
+        {
+            "src": "icons/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

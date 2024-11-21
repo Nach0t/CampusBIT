@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'LoginScreen.dart';
+import 'login_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,10 +9,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Campus Bit App',
       theme: ThemeData(
-        primaryColor: Color(0xFF71679C),
-        scaffoldBackgroundColor: Colors.grey[50],
+        primaryColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.w300,
+            fontStyle: FontStyle.italic,
+            color: Colors.black87,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(

@@ -1,31 +1,32 @@
 name: campus_bit_app
-description: "A new Flutter project."
+description: "Campus Bit App para gestión de menús y compras."
 
-publish_to: "none" # No publicar a pub.dev
+publish_to: "none" # Indica que este paquete no se publicará en pub.dev
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0" # Ajustando para mayor compatibilidad con plugins
+  sdk: ">=2.17.0 <3.0.0" # Compatible con Flutter estable y versiones recientes de plugins
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  sqflite: ^2.2.0+3 # Asegúrate de tener la última versión compatible
-  path: ^1.8.3 # Dependencia necesaria para manejar rutas del sistema de archivos
-  provider: ^6.0.3 # Agregando provider para manejar el estado (opcional)
+  cupertino_icons: ^1.0.8 # Iconos de estilo iOS
+  sqflite: ^2.2.0+3 # Manejo de bases de datos SQLite
+  path: ^1.8.3 # Manejo de rutas en el sistema de archivos
+  provider: ^6.0.3 # Para manejo de estado reactivo (opcional si decides usarlo)
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.0 # Cambiado a una versión más estable y compatible
+  flutter_lints: ^2.0.0 # Lints para mantener el código limpio y consistente
 
 flutter:
-  uses-material-design: true
+  uses-material-design: true # Activa el diseño basado en Material Design
 
+  # Activos de imagen utilizados en el proyecto
   assets:
     - assets/uss_logo.png
     - assets/otros.png
@@ -33,3 +34,16 @@ flutter:
     - assets/trasbank.png
     - assets/webpay.png
     - assets/MercadoLibre.png
+    - assets/AECafeteria.png
+    - assets/LogoAPP.png
+    - assets/AECafeteria.png
+
+
+  fonts:
+    - family: Exo2
+      fonts:
+        - asset: fonts/Exo_2/Exo2-VariableFont_wght.ttf
+          weight: 500
+        - asset: fonts/Exo_2/Exo2-Italic-VariableFont_wght.ttf
+          weight: 300
+          style: italic

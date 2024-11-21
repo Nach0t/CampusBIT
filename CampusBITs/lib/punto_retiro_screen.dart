@@ -4,8 +4,9 @@ import 'dart:math';
 
 class PuntoRetiroScreen extends StatelessWidget {
   final String username;
+  final String localName;
 
-  PuntoRetiroScreen({required this.username});
+  PuntoRetiroScreen({required this.username, required this.localName});
 
   String _calcularTiempoEspera() {
     // Obtener la hora actual
@@ -24,11 +25,11 @@ class PuntoRetiroScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Punto de Retiro',
+          'Punto de Retiro: Cafeteria',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF5B3E96), // Morado más oscuro
+        backgroundColor: Color(0xFF5B3E96),
         elevation: 5.0,
       ),
       body: Container(

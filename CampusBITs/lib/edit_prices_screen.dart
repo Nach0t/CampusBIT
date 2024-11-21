@@ -17,6 +17,13 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
     _loadMenuItems();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadMenuItems() async {
     final dbHelper = DBHelper();
     final items = await dbHelper.getMenuItems();
@@ -69,37 +76,47 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              ...menuItems.map((item) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: TextEditingController(text: item['price'].toString()),
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: item['name'],
-                            labelStyle: TextStyle(color: Colors.white),
-                            filled: true,
-                            fillColor: Colors.grey[800],
+              Expanded(
+                child: ListView.builder(
+                  itemCount: menuItems.length,
+                  itemBuilder: (context, index) {
+                    final item = menuItems[index];
+                    final TextEditingController _priceController =
+                    TextEditingController(text: item['price'].toString());
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _priceController,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                labelText: item['name'],
+                                labelStyle: TextStyle(color: Colors.white),
+                                filled: true,
+                                fillColor: Colors.grey[800],
+                              ),
+                              keyboardType: TextInputType.number,
+                              onSubmitted: (value) {
+                                if (value.isNotEmpty) {
+                                  _updatePrice(item['id'], int.parse(value));
+                                }
+                              },
+                            ),
                           ),
-                          keyboardType: TextInputType.number,
-                          onSubmitted: (value) {
-                            _updatePrice(item['id'], int.parse(value));
-                          },
-                        ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _deleteMenuItem(item['id']);
+                            },
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteMenuItem(item['id']);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  },
+                ),
+              ),
               SizedBox(height: 24),
               Text(
                 'Agregar Nuevo Producto',

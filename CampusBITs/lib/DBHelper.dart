@@ -15,27 +15,36 @@ class DBHelper {
   }
 
   Future<Database> _initDB() async {
-    try {
-      String path = join(await getDatabasesPath(), 'menu_database.db');
-      return await openDatabase(
-        path,
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute('''
-            CREATE TABLE menu_items (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              name TEXT NOT NULL,
-              price INTEGER NOT NULL
-            )
-          ''');
-          // Insert default menu items
-          await _insertDefaultMenuItems(db);
-        },
-      );
-    } catch (e) {
-      print("Error initializing the database: $e");
-      rethrow;
-    }
+    String path = join(await getDatabasesPath(), 'menu_database.db');
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE menu_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            price INTEGER NOT NULL
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE user_points (
+            username TEXT PRIMARY KEY,
+            points INTEGER NOT NULL
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE redemption_transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            cost INTEGER NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        ''');
+        await _insertDefaultMenuItems(db);
+      },
+    );
   }
 
   Future<void> _insertDefaultMenuItems(Database db) async {
@@ -48,61 +57,69 @@ class DBHelper {
     ];
 
     for (var item in defaultItems) {
-      try {
-        await db.insert('menu_items', item);
-      } catch (e) {
-        print("Error inserting default item: ${item['name']} - Error: $e");
-      }
+      await db.insert('menu_items', item);
     }
   }
 
   Future<List<Map<String, dynamic>>> getMenuItems() async {
-    try {
-      final db = await database;
-      return await db.query('menu_items');
-    } catch (e) {
-      print("Error fetching menu items: $e");
-      return [];
-    }
+    final db = await database;
+    return await db.query('menu_items');
   }
 
   Future<void> updateMenuItem(int id, int newPrice) async {
-    try {
-      final db = await database;
-      await db.update(
-        'menu_items',
-        {'price': newPrice},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-    } catch (e) {
-      print("Error updating menu item with ID $id: $e");
-    }
+    final db = await database;
+    await db.update(
+      'menu_items',
+      {'price': newPrice},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> insertMenuItem(String name, int price) async {
-    try {
-      final db = await database;
-      await db.insert(
-        'menu_items',
-        {'name': name, 'price': price},
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    } catch (e) {
-      print("Error inserting new menu item: $e");
-    }
+    final db = await database;
+    await db.insert(
+      'menu_items',
+      {'name': name, 'price': price},
+    );
   }
 
   Future<void> deleteMenuItem(int id) async {
-    try {
-      final db = await database;
-      await db.delete(
-        'menu_items',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-    } catch (e) {
-      print("Error deleting menu item with ID $id: $e");
+    final db = await database;
+    await db.delete(
+      'menu_items',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> getUserPoints(String username) async {
+    final db = await database;
+    var result = await db.query('user_points', where: 'username = ?', whereArgs: [username]);
+    if (result.isNotEmpty) {
+      return result.first['points'] as int;
+    } else {
+      await db.insert('user_points', {'username': username, 'points': 0});
+      return 0;
     }
+  }
+
+  Future<void> updateUserPoints(String username, int points) async {
+    final db = await database;
+    await db.update(
+      'user_points',
+      {'points': points},
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+  }
+
+  Future<void> recordRedemptionTransaction(String username, String itemName, int cost) async {
+    final db = await database;
+    await db.insert('redemption_transactions', {
+      'username': username,
+      'item_name': itemName,
+      'cost': cost,
+    });
   }
 }
