@@ -1,0 +1,1 @@
+// Placeholder for android/qr/generate_qr_code_screen.dart

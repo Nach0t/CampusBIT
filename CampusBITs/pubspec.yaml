@@ -11,16 +11,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8 # Iconos de estilo iOS
   sqflite: ^2.2.0+3 # Manejo de bases de datos SQLite
   path: ^1.8.3 # Manejo de rutas en el sistema de archivos
-  provider: ^6.0.3 # Para manejo de estado reactivo (opcional si decides usarlo)
+  provider: ^6.0.3 # Manejo de estado reactivo
+  uuid: ^3.0.6 # Generación de identificadores únicos (UUID)
+  qr_flutter: ^4.0.0 # Librería para generar códigos QR
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^2.0.0 # Lints para mantener el código limpio y consistente
 
 flutter:
@@ -36,8 +36,7 @@ flutter:
     - assets/MercadoLibre.png
     - assets/AECafeteria.png
     - assets/LogoAPP.png
-    - assets/AECafeteria.png
-
+    - assets/MapaUSS.png
 
   fonts:
     - family: Exo2

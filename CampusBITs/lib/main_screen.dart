@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'locales_screen.dart';
 import 'points_screen.dart';
-import 'qr_screen.dart';
+import 'generate_qr_code_screen.dart'; // Cambio para manejar generación QR
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,7 +23,11 @@ class _MainScreenState extends State<MainScreen> {
     _screens = [
       LocalesScreen(username: widget.username),
       PointsScreen(username: widget.username),
-      QRScreen(username: widget.username, menuType: 'General', pickupPoint: 'Cafeteria'),
+      GenerateQRCodeScreen(
+        purchasedItems: [], // Lista vacía al inicio
+        lol: widget.username, // lol como username
+        pickupPoint: 'Cafeteria',
+      ),
       ProfileScreen(username: widget.username),
     ];
   }
@@ -39,8 +43,10 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: Color(0xFF5B3E96),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color(0xFF20B2AA), // Celeste agua seleccionado
+        unselectedItemColor: Colors.grey, // Gris para no seleccionados
+        backgroundColor: Color(0xFF66CDAA), // Fondo de la barra de navegación
+        type: BottomNavigationBarType.fixed, // Mantener el diseño fijo
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.store),

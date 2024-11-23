@@ -48,13 +48,13 @@ class _MenuScreenState extends State<MenuScreen> {
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF5B3E96),
+        backgroundColor: Color(0xFF20B2AA), // Azul agua
         elevation: 5.0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFF66CDAA), Color(0xFF20B2AA)], // Azul agua degradado
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -119,7 +119,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                   _addToCart(item);
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF71679C),
+                                  backgroundColor: Color(0xFF20B2AA),
                                   elevation: 3.0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12.0),
@@ -175,7 +175,7 @@ class _MenuScreenState extends State<MenuScreen> {
                     ),
                     child: Text(
                       'Ir al Carrito',
-                      style: TextStyle(color: Color(0xFF5B3E96)),
+                      style: TextStyle(color: Color(0xFF20B2AA)),
                     ),
                   ),
                 ],
@@ -208,7 +208,7 @@ class _MenuScreenState extends State<MenuScreen> {
             _addToCart({'name': name, 'price': price});
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF71679C),
+            backgroundColor: Color(0xFF20B2AA),
             elevation: 3.0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),

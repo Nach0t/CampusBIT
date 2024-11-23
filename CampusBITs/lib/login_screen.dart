@@ -44,14 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF71679C),
+        backgroundColor: Color(0xFF87CEFA), // Celeste agua (color principal del AppBar)
         centerTitle: true,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente de celeste agua
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5B3E96),
+                  backgroundColor: Color(0xFF87CEEB), // Celeste agua para el botón
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),

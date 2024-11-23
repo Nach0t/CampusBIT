@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'qr_screen.dart';
+import 'generate_qr_code_screen.dart'; // Importamos la pantalla de generación de QR
 
 class CartScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems; // Lista de productos en el carrito
@@ -28,18 +28,12 @@ class _CartScreenState extends State<CartScreen> {
 
   void _proceedToQR() {
     if (widget.cartItems.isNotEmpty && selectedOption != null) {
-      // Validar y unir los nombres de los productos en el carrito
-      String menuType = widget.cartItems
-          .map((item) => item['name'] ?? 'Producto sin nombre') // Valor predeterminado si no existe 'name'
-          .where((name) => name != null) // Filtrar valores nulos
-          .join(", ");
-
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => QRScreen(
-            menuType: menuType,
-            username: widget.username,
+          builder: (context) => GenerateQRCodeScreen(
+            purchasedItems: widget.cartItems,
+            lol: widget.username,
             pickupPoint: 'Cafeteria',
           ),
         ),
@@ -63,7 +57,7 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Carrito de Compra'),
-        backgroundColor: Color(0xFF5B3E96),
+        backgroundColor: Color(0xFF20B2AA), // Celeste agua
       ),
       body: Column(
         children: [
@@ -80,7 +74,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   child: ListTile(
                     title: Text(
-                      '${item['name'] ?? 'Producto sin nombre'} - \$${item['price']}',
+                      '${item['name']} - \$${item['price']}',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     trailing: IconButton(
@@ -118,7 +112,7 @@ class _CartScreenState extends State<CartScreen> {
                 ElevatedButton(
                   onPressed: _proceedToQR,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF5B3E96),
+                    backgroundColor: Color(0xFF20B2AA), // Celeste agua
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
@@ -143,7 +137,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: selectedOption == option ? Color(0xFF5B3E96) : Colors.grey[800],
+          color: selectedOption == option ? Color(0xFF20B2AA) : Colors.grey[800], // Celeste agua si está seleccionado
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Image.asset(

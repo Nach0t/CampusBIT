@@ -1,0 +1,1 @@
+// Placeholder for android/locales/restaurant_card.dart
