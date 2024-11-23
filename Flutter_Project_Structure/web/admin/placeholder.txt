@@ -1,0 +1,4 @@
+This is a placeholder for admin folder.
+
+Este archivo es un marcador para mantener la estructura de carpetas.
+Elimina este archivo si añades otros contenidos a esta carpeta.

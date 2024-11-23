@@ -1,0 +1,4 @@
+This is a placeholder for cart folder.
+
+Este archivo es un marcador para mantener la estructura de carpetas.
+Elimina este archivo si añades contenido a esta carpeta.
