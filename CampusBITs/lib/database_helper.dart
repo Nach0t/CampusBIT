@@ -22,38 +22,59 @@ class DatabaseHelper {
     );
   }
 
-  Future _onCreate(Database db, int version) async {
+  Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE menu(
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        price INTEGER
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        price INTEGER NOT NULL
       )
     ''');
+
+    // Datos iniciales
+    await db.insert('menu', {'name': 'Desayuno Ejecutivo', 'price': 2500});
+    await db.insert('menu', {'name': 'Almuerzo Especial', 'price': 4500});
+    await db.insert('menu', {'name': 'Cena Ligera', 'price': 2000});
   }
 
-  // Insert a new menu item
   Future<int> insertMenuItem(Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    return await db.insert('menu', row);
+    try {
+      Database db = await instance.database;
+      return await db.insert('menu', row);
+    } catch (e) {
+      print('Error al insertar: $e');
+      return -1;
+    }
   }
 
-  // Get all menu items
   Future<List<Map<String, dynamic>>> getMenuItems() async {
-    Database db = await instance.database;
-    return await db.query('menu');
+    try {
+      Database db = await instance.database;
+      return await db.query('menu');
+    } catch (e) {
+      print('Error al obtener elementos: $e');
+      return [];
+    }
   }
 
-  // Update a menu item
   Future<int> updateMenuItem(Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    int id = row['id'];
-    return await db.update('menu', row, where: 'id = ?', whereArgs: [id]);
+    try {
+      Database db = await instance.database;
+      int id = row['id'];
+      return await db.update('menu', row, where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      print('Error al actualizar: $e');
+      return -1;
+    }
   }
 
-  // Delete a menu item
   Future<int> deleteMenuItem(int id) async {
-    Database db = await instance.database;
-    return await db.delete('menu', where: 'id = ?', whereArgs: [id]);
+    try {
+      Database db = await instance.database;
+      return await db.delete('menu', where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      print('Error al eliminar: $e');
+      return -1;
+    }
   }
 }
