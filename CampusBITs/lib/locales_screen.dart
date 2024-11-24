@@ -32,9 +32,13 @@ class LocalesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Locales'),
+        title: Text(
+          'Locales',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xFF5B3E96),
-        automaticallyImplyLeading: true,
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -47,7 +51,6 @@ class LocalesScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // Botón para el mapa de locales
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -83,41 +86,45 @@ class LocalesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Lista de locales
             _buildLocalCard(
               context,
               'Cafeteria',
-              'Cafeteria principal',
+              'Cafetería principal del campus.',
               username,
               calcularTiempoEspera('Cafeteria'),
+              'assets/AECafeteria.png',
             ),
             _buildLocalCard(
               context,
               'Hall',
-              'Sala de espera principal',
+              'Sala de espera central.',
               username,
               calcularTiempoEspera('Hall'),
+              'assets/Hall.png',
             ),
             _buildLocalCard(
               context,
               'Estacionamiento',
-              'Zona de estacionamiento',
+              'Zona de estacionamiento segura.',
               username,
               calcularTiempoEspera('Estacionamiento'),
+              'assets/Estacionamiento.png',
             ),
             _buildLocalCard(
               context,
               'Carpa',
-              'Área exterior techada',
+              'Área exterior techada.',
               username,
               calcularTiempoEspera('Carpa'),
+              'assets/Carpa.png',
             ),
             _buildLocalCard(
               context,
               'Sala de funcionarios',
-              'Sala privada para funcionarios',
+              'Sala privada para reuniones administrativas.',
               username,
               calcularTiempoEspera('Sala de funcionarios'),
+              'assets/SalaFuncionarios.png',
             ),
           ],
         ),
@@ -126,12 +133,13 @@ class LocalesScreen extends StatelessWidget {
   }
 
   Widget _buildLocalCard(
-      BuildContext context,
-      String localName,
-      String description,
-      String username,
-      String tiempoEspera,
-      ) {
+    BuildContext context,
+    String localName,
+    String description,
+    String username,
+    String tiempoEspera,
+    String imagePath,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -169,7 +177,7 @@ class LocalesScreen extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Image.asset(
-              'assets/AECafeteria.png', // Cambia esto según la imagen para cada local
+              imagePath,
               height: 120,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -193,7 +201,7 @@ class LocalesScreen extends StatelessWidget {
                 ),
                 SizedBox(width: 8),
                 Text(
-                  '(0)', // Aquí puedes cambiar por la calificación real si lo tienes
+                  '(0)', // Cambia esto si tienes calificaciones reales
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
