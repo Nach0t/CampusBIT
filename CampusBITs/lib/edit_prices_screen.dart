@@ -25,31 +25,64 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
   }
 
   Future<void> _loadMenuItems() async {
-    final dbHelper = DBHelper();
-    final items = await dbHelper.getMenuItems();
-    setState(() {
-      menuItems = items;
-    });
+    try {
+      final dbHelper = DBHelper();
+      final items = await dbHelper.getMenuItems();
+      setState(() {
+        menuItems = items;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar los productos.')),
+      );
+    }
   }
 
   Future<void> _updatePrice(int id, int newPrice) async {
-    final dbHelper = DBHelper();
-    await dbHelper.updateMenuItem(id, newPrice);
-    _loadMenuItems();
+    try {
+      final dbHelper = DBHelper();
+      await dbHelper.updateMenuItem(id, newPrice);
+      _loadMenuItems();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Precio actualizado correctamente.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar el precio.')),
+      );
+    }
   }
 
   Future<void> _addMenuItem(String name, int price) async {
-    final dbHelper = DBHelper();
-    await dbHelper.insertMenuItem(name, price);
-    _nameController.clear();
-    _priceController.clear();
-    _loadMenuItems();
+    try {
+      final dbHelper = DBHelper();
+      await dbHelper.insertMenuItem(name, price);
+      _nameController.clear();
+      _priceController.clear();
+      _loadMenuItems();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Producto agregado correctamente.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al agregar el producto.')),
+      );
+    }
   }
 
   Future<void> _deleteMenuItem(int id) async {
-    final dbHelper = DBHelper();
-    await dbHelper.deleteMenuItem(id);
-    _loadMenuItems();
+    try {
+      final dbHelper = DBHelper();
+      await dbHelper.deleteMenuItem(id);
+      _loadMenuItems();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Producto eliminado correctamente.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al eliminar el producto.')),
+      );
+    }
   }
 
   @override
@@ -81,15 +114,14 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                   itemCount: menuItems.length,
                   itemBuilder: (context, index) {
                     final item = menuItems[index];
-                    final TextEditingController _priceController =
-                    TextEditingController(text: item['price'].toString());
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: Row(
                         children: [
                           Expanded(
                             child: TextField(
-                              controller: _priceController,
+                              controller: TextEditingController(
+                                  text: item['price'].toString()),
                               style: TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 labelText: item['name'],
@@ -99,7 +131,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                               ),
                               keyboardType: TextInputType.number,
                               onSubmitted: (value) {
-                                if (value.isNotEmpty) {
+                                if (value.isNotEmpty && int.tryParse(value) != null) {
                                   _updatePrice(item['id'], int.parse(value));
                                 }
                               },
@@ -148,8 +180,11 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
               SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  if (_nameController.text.isNotEmpty && _priceController.text.isNotEmpty) {
-                    _addMenuItem(_nameController.text, int.parse(_priceController.text));
+                  if (_nameController.text.isNotEmpty &&
+                      _priceController.text.isNotEmpty &&
+                      int.tryParse(_priceController.text) != null) {
+                    _addMenuItem(
+                        _nameController.text, int.parse(_priceController.text));
                   }
                 },
                 child: Text('Agregar Producto', style: TextStyle(color: Colors.white)),
