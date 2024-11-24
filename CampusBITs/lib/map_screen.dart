@@ -5,35 +5,34 @@ class MapScreen extends StatelessWidget {
 
   MapScreen({required this.username});
 
-  // Lista de ubicaciones con posiciones exactas ajustadas para centrar los puntos
   final List<Map<String, dynamic>> locations = [
     {
       'name': 'Cafetería',
-      'position': Offset(75, 250), // Coordenadas ajustadas
+      'position': Offset(75, 250),
       'waitTime': '10-15 minutos',
       'description': 'Lugar principal de alimentación en el campus.',
     },
     {
       'name': 'Hall',
-      'position': Offset(180, 140), // Coordenadas ajustadas
+      'position': Offset(180, 140),
       'waitTime': '5-10 minutos',
       'description': 'Zona central con acceso al auditorio.',
     },
     {
       'name': 'Auditorio',
-      'position': Offset(230, 200), // Coordenadas ajustadas
+      'position': Offset(230, 200),
       'waitTime': '5-8 minutos',
       'description': 'Espacio para eventos y conferencias.',
     },
     {
       'name': 'Estacionamiento',
-      'position': Offset(300, 60), // Coordenadas ajustadas
+      'position': Offset(300, 60),
       'waitTime': '2-5 minutos',
       'description': 'Estacionamiento amplio y seguro.',
     },
     {
       'name': 'Carpa',
-      'position': Offset(350, 300), // Coordenadas ajustadas
+      'position': Offset(350, 300),
       'waitTime': '15-20 minutos',
       'description': 'Espacio para reuniones temporales.',
     },
@@ -50,14 +49,12 @@ class MapScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Stack(
             children: [
-              // Imagen de fondo (mapa del campus)
               Image.asset(
                 'assets/MapaUSS.png',
-                width: 400, // Ancho ajustado para mostrar toda la imagen
-                height: 500, // Altura ajustada para mostrar toda la imagen
-                fit: BoxFit.fill, // Asegura que la imagen ocupe el contenedor
+                width: MediaQuery.of(context).size.width, // Ajuste responsivo
+                height: MediaQuery.of(context).size.height * 0.8,
+                fit: BoxFit.contain, // Escala la imagen para mantener proporciones
               ),
-              // Agregar puntos interactivos basados en las posiciones de la lista
               ...locations.map((location) {
                 return Positioned(
                   left: location['position'].dx,
@@ -66,10 +63,10 @@ class MapScreen extends StatelessWidget {
                     onTap: () {
                       _showLocationInfo(context, location);
                     },
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      color: Colors.transparent, // Contenedor invisible
+                    child: Icon(
+                      Icons.location_on,
+                      color: Colors.red.withOpacity(0.8),
+                      size: 30, // Tamaño del ícono
                     ),
                   ),
                 );
@@ -81,7 +78,6 @@ class MapScreen extends StatelessWidget {
     );
   }
 
-  // Muestra la información del local en un cuadro de diálogo
   void _showLocationInfo(BuildContext context, Map<String, dynamic> location) {
     showDialog(
       context: context,
