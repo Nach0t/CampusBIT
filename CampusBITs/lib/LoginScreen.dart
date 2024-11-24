@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main_screen.dart';
-import 'edit_prices_screen.dart';
+import 'main_screen.dart'; // Importamos la pantalla principal
+import 'edit_prices_screen.dart'; // Importamos la pantalla de edición de precios
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,21 +17,30 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Login', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Login',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
       ),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
+          // Fondo con gradiente
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF71679C), Color(0xFF44337A)],
+                colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Celeste agua
               ),
             ),
           ),
+          // Contenido del login
           Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -39,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(16.0),
                     boxShadow: [
                       BoxShadow(
@@ -52,13 +61,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Icono del usuario
                       Container(
                         padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xFF71679C), width: 3.0),
+                          border: Border.all(color: Color(0xFF87CEEB), width: 3.0),
                           borderRadius: BorderRadius.circular(16.0),
                           gradient: LinearGradient(
-                            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+                            colors: [Color(0xFF87CEEB), Color(0xFFB0E0E6)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -70,11 +80,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 24),
+                      // Campo de texto: Usuario
                       TextField(
                         controller: _usernameController,
+                        style: TextStyle(
+                          fontFamily: 'Exo2',
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'USUARIO',
-                          hintStyle: TextStyle(color: Colors.grey[700]),
+                          hintStyle: TextStyle(
+                            color: Colors.grey[700],
+                            fontFamily: 'Exo2',
+                          ),
                           filled: true,
                           fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
@@ -85,12 +104,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
+                      // Campo de texto: Contraseña
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
+                        style: TextStyle(
+                          fontFamily: 'Exo2',
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'CONTRASEÑA',
-                          hintStyle: TextStyle(color: Colors.grey[700]),
+                          hintStyle: TextStyle(
+                            color: Colors.grey[700],
+                            fontFamily: 'Exo2',
+                          ),
                           filled: true,
                           fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
@@ -101,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 24),
+                      // Botón de ingresar
                       ElevatedButton(
                         onPressed: () {
                           if (_usernameController.text == 'admin' &&
@@ -125,15 +154,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          backgroundColor: Color(0xFF71679C),
+                          backgroundColor: Color(0xFF87CEEB),
                           elevation: 5,
                         ),
-                        child: Text('INGRESAR', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          'INGRESAR',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Exo2',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       SizedBox(height: 32),
+                      // Pie de página
                       Text(
                         'Todos los derechos reservados para CampusBIT',
-                        style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 14,
+                          fontFamily: 'Exo2',
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ],
