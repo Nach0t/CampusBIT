@@ -68,30 +68,48 @@ class _PointsScreenState extends State<PointsScreen> {
       appBar: AppBar(
         title: Text('Canjea tus Puntos'),
         backgroundColor: Color(0xFF5B3E96),
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text(
-                'Puntos Totales: $totalPoints',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'Puntos Totales: $totalPoints',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 32),
-            Text(
-              'Opciones de Canje:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            _buildRedeemOption('Menú Ejecutivo', 1000),
-            _buildRedeemOption('Menú Junaeb', 1500),
-            _buildRedeemOption('Ticket de Compra por \$2000 CLP', 2000),
-            _buildRedeemOption('Ticket de Compra por \$3000 CLP', 3000),
-          ],
+              SizedBox(height: 32),
+              Text(
+                'Opciones de Canje:',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 16),
+              _buildRedeemOption('Menú Ejecutivo', 1000),
+              _buildRedeemOption('Menú Junaeb', 1500),
+              _buildRedeemOption('Ticket de Compra por \$2000 CLP', 2000),
+              _buildRedeemOption('Ticket de Compra por \$3000 CLP', 3000),
+            ],
+          ),
         ),
       ),
     );
@@ -102,7 +120,7 @@ class _PointsScreenState extends State<PointsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: totalPoints >= cost ? Colors.white : Colors.grey[600],
           borderRadius: BorderRadius.circular(16.0),
           boxShadow: [
             BoxShadow(
@@ -115,21 +133,30 @@ class _PointsScreenState extends State<PointsScreen> {
         child: ListTile(
           title: Text(
             itemName,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: totalPoints >= cost ? Colors.black : Colors.white,
+            ),
           ),
-          subtitle: Text('Costo: $cost puntos'),
+          subtitle: Text(
+            'Costo: $cost puntos',
+            style: TextStyle(
+              color: totalPoints >= cost ? Colors.black87 : Colors.white70,
+            ),
+          ),
           trailing: totalPoints >= cost
               ? ElevatedButton(
-            onPressed: () => _redeemItem(itemName, cost),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF5B3E96),
-            ),
-            child: Text('Canjear', style: TextStyle(color: Colors.white)),
-          )
-              : Text(
-            'No suficiente puntos',
-            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-          ),
+                  onPressed: () => _redeemItem(itemName, cost),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF5B3E96),
+                  ),
+                  child: Text('Canjear', style: TextStyle(color: Colors.white)),
+                )
+              : Icon(
+                  Icons.lock,
+                  color: Colors.redAccent,
+                ),
         ),
       ),
     );
