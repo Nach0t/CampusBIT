@@ -56,8 +56,17 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Carrito de Compra'),
-        backgroundColor: Color(0xFF20B2AA), // Celeste agua
+        title: Text(
+          'Carrito de Compra',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF87CEEB), // Celeste agua
+        centerTitle: true,
+        elevation: 5.0,
       ),
       body: Column(
         children: [
@@ -75,7 +84,12 @@ class _CartScreenState extends State<CartScreen> {
                   child: ListTile(
                     title: Text(
                       '${item['name']} - \$${item['price']}',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Exo2',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                      ),
                     ),
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.redAccent),
@@ -93,13 +107,24 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   'Total: \$${getTotalPrice()}',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Exo2',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
                 ),
                 SizedBox(height: 16),
                 Text(
                   'Selecciona un método de pago:',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Exo2',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
                 ),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -112,12 +137,21 @@ class _CartScreenState extends State<CartScreen> {
                 ElevatedButton(
                   onPressed: _proceedToQR,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF20B2AA), // Celeste agua
+                    backgroundColor: Color(0xFF87CEEB), // Celeste agua
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
-                  child: Text('Pagar', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    'Pagar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Exo2',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -137,7 +171,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: selectedOption == option ? Color(0xFF20B2AA) : Colors.grey[800], // Celeste agua si está seleccionado
+          color: selectedOption == option ? Color(0xFF87CEEB) : Colors.grey[800],
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Image.asset(
