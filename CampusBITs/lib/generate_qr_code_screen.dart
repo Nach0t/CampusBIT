@@ -3,6 +3,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'qr_screen.dart';
 
+// Lista global para almacenar los QR generados
+List<Map<String, dynamic>> qrHubList = [];
+
 class GenerateQRCodeScreen extends StatefulWidget {
   final List<Map<String, dynamic>> purchasedItems;
   final String lol;
@@ -44,50 +47,61 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Generar QR'),
+        title: Text(
+          'Generar QR',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Color(0xFF5B3E96),
+        centerTitle: true,
       ),
       body: qrHubList.isEmpty
           ? Center(
-        child: Text(
-          'No se han generado QR aún.',
-          style: TextStyle(fontSize: 18),
-        ),
-      )
+              child: Text(
+                'No se han generado QR aún.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
           : ListView.builder(
-        itemCount: qrHubList.length,
-        itemBuilder: (context, index) {
-          final qr = qrHubList[index];
-          return Card(
-            margin: EdgeInsets.all(16.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: ListTile(
-              title: Text('Menú: ${qr['menuType']}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Usuario: ${qr['lol']}'),
-                  Text('Punto de Retiro: ${qr['pickupPoint']}'),
-                  Text('Validez hasta: ${qr['validity']}'),
-                ],
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.qr_code),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => QRScreen(qrData: qr),
+              itemCount: qrHubList.length,
+              itemBuilder: (context, index) {
+                final qr = qrHubList[index];
+                return Card(
+                  margin: EdgeInsets.all(16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      'Menú: ${qr['menuType']}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  );
-                },
-              ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Usuario: ${qr['lol']}'),
+                        Text('Punto de Retiro: ${qr['pickupPoint']}'),
+                        Text('Validez hasta: ${qr['validity']}'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.qr_code, color: Color(0xFF5B3E96)),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QRScreen(qrData: qr),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
