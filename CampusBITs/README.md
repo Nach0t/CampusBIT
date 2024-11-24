@@ -15,6 +15,7 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+```plaintext
 
 lib/
 ├── main.dart                 # Punto de entrada principal de la aplicación
@@ -47,3 +48,7 @@ lib/
 ├── database/                 # Clases y utilidades de ayuda
 │   ├── database_helper.dart  # Ayudante para la base de datos
 │   ├── db_helper.dart        # Gestión de la conexión a la base de datos
+
+```
+
+
