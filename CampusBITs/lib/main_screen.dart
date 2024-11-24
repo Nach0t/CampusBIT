@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'locales_screen.dart';
 import 'points_screen.dart';
-import 'generate_qr_code_screen.dart'; // Cambio para manejar generación QR
+import 'generate_qr_code_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -14,8 +14,9 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
-  late List<Widget> _screens;
+  int _selectedIndex = 0;
+
+  late final List<Widget> _screens;
 
   @override
   void initState() {
@@ -24,30 +25,35 @@ class _MainScreenState extends State<MainScreen> {
       LocalesScreen(username: widget.username),
       PointsScreen(username: widget.username),
       GenerateQRCodeScreen(
-        purchasedItems: [], // Lista vacía al inicio
-        lol: widget.username, // lol como username
+        purchasedItems: [],
+        lol: widget.username,
         pickupPoint: 'Cafeteria',
       ),
       ProfileScreen(username: widget.username),
     ];
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Color(0xFF20B2AA), // Celeste agua seleccionado
-        unselectedItemColor: Colors.grey, // Gris para no seleccionados
-        backgroundColor: Color(0xFF66CDAA), // Fondo de la barra de navegación
-        type: BottomNavigationBarType.fixed, // Mantener el diseño fijo
-        items: [
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Color(0xFF20B2AA),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Color(0xFF66CDAA),
+        type: BottomNavigationBarType.fixed,
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.store),
             label: 'Locales',
