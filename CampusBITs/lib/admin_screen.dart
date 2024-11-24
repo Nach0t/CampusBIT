@@ -23,8 +23,17 @@ class _AdminScreenState extends State<AdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Panel de Administrador'),
-        backgroundColor: Color(0xFF5B3E96),
+        title: Text(
+          'Panel de Administrador',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF87CEEB), // Celeste agua
+        centerTitle: true,
+        elevation: 5.0,
       ),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -34,8 +43,16 @@ class _AdminScreenState extends State<AdminScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: Color(0xFF5B3E96),
+        selectedItemColor: Color(0xFF87CEEB), // Celeste agua para ítems seleccionados
         unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Exo2',
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Exo2',
+        ),
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.edit),
