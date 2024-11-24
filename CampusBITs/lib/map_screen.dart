@@ -5,41 +5,37 @@ class MapScreen extends StatelessWidget {
 
   MapScreen({required this.username});
 
+  // Lista de ubicaciones con posiciones exactas ajustadas para centrar los puntos
   final List<Map<String, dynamic>> locations = [
     {
-      'name': 'Cafeteria',
-      'position': Offset(120, 300), // Ajusta estas coordenadas
-      'waitTime': '10-20 minutos',
-      'rating': 4.5,
-      'description': 'Un lugar ideal para desayunar o almorzar.',
+      'name': 'Cafetería',
+      'position': Offset(75, 250), // Coordenadas ajustadas
+      'waitTime': '10-15 minutos',
+      'description': 'Lugar principal de alimentación en el campus.',
     },
     {
       'name': 'Hall',
-      'position': Offset(180, 150), // Ajusta estas coordenadas
-      'waitTime': '15-25 minutos',
-      'rating': 4.2,
-      'description': 'Zona central con acceso a múltiples servicios.',
+      'position': Offset(180, 140), // Coordenadas ajustadas
+      'waitTime': '5-10 minutos',
+      'description': 'Zona central con acceso al auditorio.',
+    },
+    {
+      'name': 'Auditorio',
+      'position': Offset(230, 200), // Coordenadas ajustadas
+      'waitTime': '5-8 minutos',
+      'description': 'Espacio para eventos y conferencias.',
     },
     {
       'name': 'Estacionamiento',
-      'position': Offset(300, 80), // Ajusta estas coordenadas
-      'waitTime': '5-10 minutos',
-      'rating': 4.0,
-      'description': 'Área de estacionamiento amplia y segura.',
+      'position': Offset(300, 60), // Coordenadas ajustadas
+      'waitTime': '2-5 minutos',
+      'description': 'Estacionamiento amplio y seguro.',
     },
     {
       'name': 'Carpa',
-      'position': Offset(400, 400), // Ajusta estas coordenadas
-      'waitTime': '20-30 minutos',
-      'rating': 3.8,
-      'description': 'Espacio temporal para eventos y reuniones.',
-    },
-    {
-      'name': 'Sala de funcionarios',
-      'position': Offset(450, 350), // Ajusta estas coordenadas
-      'waitTime': '25-35 minutos',
-      'rating': 4.1,
-      'description': 'Oficinas administrativas del campus.',
+      'position': Offset(350, 300), // Coordenadas ajustadas
+      'waitTime': '15-20 minutos',
+      'description': 'Espacio para reuniones temporales.',
     },
   ];
 
@@ -50,39 +46,42 @@ class MapScreen extends StatelessWidget {
         title: Text('Mapa de Locales'),
         backgroundColor: Color(0xFF5B3E96),
       ),
-      body: Stack(
-        children: [
-          // Fondo del mapa
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/MapaUSS.png'), // Cambia a tu imagen del mapa
-                fit: BoxFit.cover,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              // Imagen de fondo (mapa del campus)
+              Image.asset(
+                'assets/MapaUSS.png',
+                width: 400, // Ancho ajustado para mostrar toda la imagen
+                height: 500, // Altura ajustada para mostrar toda la imagen
+                fit: BoxFit.fill, // Asegura que la imagen ocupe el contenedor
               ),
-            ),
+              // Agregar puntos interactivos basados en las posiciones de la lista
+              ...locations.map((location) {
+                return Positioned(
+                  left: location['position'].dx,
+                  top: location['position'].dy,
+                  child: GestureDetector(
+                    onTap: () {
+                      _showLocationInfo(context, location);
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      color: Colors.transparent, // Contenedor invisible
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
           ),
-          // Puntos interactivos
-          ...locations.map((location) {
-            return Positioned(
-              left: location['position'].dx,
-              top: location['position'].dy,
-              child: GestureDetector(
-                onTap: () {
-                  _showLocationInfo(context, location);
-                },
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                  size: 30,
-                ),
-              ),
-            );
-          }).toList(),
-        ],
+        ),
       ),
     );
   }
 
+  // Muestra la información del local en un cuadro de diálogo
   void _showLocationInfo(BuildContext context, Map<String, dynamic> location) {
     showDialog(
       context: context,
@@ -100,16 +99,10 @@ class MapScreen extends StatelessWidget {
               Text(location['description'] ?? 'No disponible'),
               SizedBox(height: 10),
               Text(
-                'Tiempo de demora:',
+                'Tiempo de espera:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(location['waitTime'] ?? 'No disponible'),
-              SizedBox(height: 10),
-              Text(
-                'Valoración:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text('${location['rating']} estrellas'),
             ],
           ),
           actions: [

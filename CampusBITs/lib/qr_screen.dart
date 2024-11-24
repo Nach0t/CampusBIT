@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+// Lista global para almacenar los QR generados y comprados
+List<Map<String, dynamic>> qrHubList = [];
+
 class QRScreen extends StatelessWidget {
   final Map<String, dynamic> qrData;
 
@@ -19,37 +22,47 @@ class QRScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Detalles del QR',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        child: Card(
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Menú: ${qrData['menuType']}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Text('Usuario: ${qrData['lol']}'),
+                Text('Punto de Retiro: ${qrData['pickupPoint']}'),
+                Text('Validez hasta: ${formatValidity(qrData['validity'])}'),
+                SizedBox(height: 16),
+                Center(
+                  child: QrImageView(
+                    data: qrData['id'], // UUID único como dato del QR
+                    version: QrVersions.auto,
+                    size: 200,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF5B3E96),
+                  ),
+                  child: Text('Regresar'),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            Text('Menú: ${qrData['menuType']}'),
-            Text('Usuario: ${qrData['lol']}'), // `lol` como username
-            Text('Punto de Retiro: ${qrData['pickupPoint']}'),
-            Text('Validez: ${formatValidity(qrData['validity'])}'),
-            Text('Precio: \$${qrData['price']}'),
-            SizedBox(height: 20),
-            Center(
-              child: QrImageView(
-                data: qrData['id'], // UUID como dato del QR
-                version: QrVersions.auto,
-                size: 200,
-                backgroundColor: Colors.white,
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF5B3E96),
-              ),
-              child: Text('Regresar'),
-            ),
-          ],
+          ),
         ),
       ),
     );
