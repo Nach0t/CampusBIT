@@ -2,11 +2,27 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DBHelper {
+  // Singleton Pattern
   static final DBHelper _instance = DBHelper._internal();
   factory DBHelper() => _instance;
   DBHelper._internal();
 
   static Database? _database;
+
+  // Nombres de tablas y columnas
+  static const String tableMenuItems = 'menu_items';
+  static const String columnId = 'id';
+  static const String columnName = 'name';
+  static const String columnPrice = 'price';
+
+  static const String tableUserPoints = 'user_points';
+  static const String columnUsername = 'username';
+  static const String columnPoints = 'points';
+
+  static const String tableRedemptionTransactions = 'redemption_transactions';
+  static const String columnItemName = 'item_name';
+  static const String columnCost = 'cost';
+  static const String columnTimestamp = 'timestamp';
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -14,39 +30,46 @@ class DBHelper {
     return _database!;
   }
 
+  // Inicialización de la base de datos
   Future<Database> _initDB() async {
     String path = join(await getDatabasesPath(), 'menu_database.db');
     return await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
+        // Crear tablas
         await db.execute('''
-          CREATE TABLE menu_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            price INTEGER NOT NULL
+          CREATE TABLE $tableMenuItems (
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnName TEXT NOT NULL,
+            $columnPrice INTEGER NOT NULL
           )
         ''');
+
         await db.execute('''
-          CREATE TABLE user_points (
-            username TEXT PRIMARY KEY,
-            points INTEGER NOT NULL
+          CREATE TABLE $tableUserPoints (
+            $columnUsername TEXT PRIMARY KEY,
+            $columnPoints INTEGER NOT NULL
           )
         ''');
+
         await db.execute('''
-          CREATE TABLE redemption_transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            item_name TEXT NOT NULL,
-            cost INTEGER NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+          CREATE TABLE $tableRedemptionTransactions (
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+            $columnUsername TEXT NOT NULL,
+            $columnItemName TEXT NOT NULL,
+            $columnCost INTEGER NOT NULL,
+            $columnTimestamp DATETIME DEFAULT CURRENT_TIMESTAMP
           )
         ''');
+
+        // Insertar menú predeterminado
         await _insertDefaultMenuItems(db);
       },
     );
   }
 
+  // Inserta elementos predeterminados en el menú
   Future<void> _insertDefaultMenuItems(Database db) async {
     List<Map<String, dynamic>> defaultItems = [
       {'name': 'Promo desayuno', 'price': 1800},
@@ -57,69 +80,76 @@ class DBHelper {
     ];
 
     for (var item in defaultItems) {
-      await db.insert('menu_items', item);
+      await db.insert(tableMenuItems, item);
     }
   }
 
+  // Consultar todos los elementos del menú
   Future<List<Map<String, dynamic>>> getMenuItems() async {
     final db = await database;
-    return await db.query('menu_items');
+    return await db.query(tableMenuItems);
   }
 
+  // Actualizar precio de un elemento del menú
   Future<void> updateMenuItem(int id, int newPrice) async {
     final db = await database;
     await db.update(
-      'menu_items',
-      {'price': newPrice},
-      where: 'id = ?',
+      tableMenuItems,
+      {columnPrice: newPrice},
+      where: '$columnId = ?',
       whereArgs: [id],
     );
   }
 
+  // Insertar un nuevo elemento en el menú
   Future<void> insertMenuItem(String name, int price) async {
     final db = await database;
     await db.insert(
-      'menu_items',
-      {'name': name, 'price': price},
+      tableMenuItems,
+      {columnName: name, columnPrice: price},
     );
   }
 
+  // Eliminar un elemento del menú
   Future<void> deleteMenuItem(int id) async {
     final db = await database;
     await db.delete(
-      'menu_items',
-      where: 'id = ?',
+      tableMenuItems,
+      where: '$columnId = ?',
       whereArgs: [id],
     );
   }
 
+  // Obtener puntos de usuario
   Future<int> getUserPoints(String username) async {
     final db = await database;
-    var result = await db.query('user_points', where: 'username = ?', whereArgs: [username]);
+    var result = await db.query(tableUserPoints, where: '$columnUsername = ?', whereArgs: [username]);
     if (result.isNotEmpty) {
-      return result.first['points'] as int;
+      return result.first[columnPoints] as int;
     } else {
-      await db.insert('user_points', {'username': username, 'points': 0});
+      await db.insert(tableUserPoints, {columnUsername: username, columnPoints: 0});
       return 0;
     }
   }
 
+  // Actualizar puntos de usuario
   Future<void> updateUserPoints(String username, int points) async {
     final db = await database;
     await db.update(
-      'user_points',
-      {'points': points},
-      where: 'username = ?',
+      tableUserPoints,
+      {columnPoints: points},
+      where: '$columnUsername = ?',
       whereArgs: [username],
     );
   }
 
+  // Registrar una transacción de canje
   Future<void> recordRedemptionTransaction(String username, String itemName, int cost) async {
     final db = await database;
-    await db.insert('redemption_transactions', {
-      'username': username,
-      'item_name': itemName,
-      'cost': cost,
+    await db.insert(tableRedemptionTransactions, {
+      columnUsername: username,
+      columnItemName: itemName,
+      columnCost: cost,
     });
   }
 }
