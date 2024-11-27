@@ -18,13 +18,13 @@ class CompanySelectionScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF87CEEB), // Celeste agua
+        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
         centerTitle: true,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Degradado celeste agua
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente celeste agua
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -36,16 +36,17 @@ class CompanySelectionScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Bienvenido, $username.\nPor favor, selecciona la empresa a la que deseas acceder:',
+                  'Bienvenido, $username. Por favor, selecciona la empresa a la que deseas acceder:',
                   style: TextStyle(
                     fontFamily: 'Exo2',
-                    fontWeight: FontWeight.w500,
                     fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 30),
+                // Botón para USS
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -77,12 +78,12 @@ class CompanySelectionScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'USS',
+                          '',
                           style: TextStyle(
                             fontFamily: 'Exo2',
-                            fontWeight: FontWeight.bold,
                             fontSize: 20,
-                            color: Color(0xFF5B3E96), // Color púrpura USS
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF4682B4),
                           ),
                         ),
                       ],
@@ -90,11 +91,15 @@ class CompanySelectionScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 24),
+                // Botón para Otra Empresa
                 GestureDetector(
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Otra empresa no disponible actualmente'),
+                        content: Text(
+                          'Otra empresa no disponible actualmente',
+                          style: TextStyle(fontFamily: 'Exo2'),
+                        ),
                         backgroundColor: Colors.redAccent,
                       ),
                     );
@@ -117,16 +122,16 @@ class CompanySelectionScreen extends StatelessWidget {
                         Icon(
                           Icons.business,
                           size: 100,
-                          color: Color(0xFF5B3E96), // Color púrpura USS
+                          color: Color(0xFF5F9EA0), // Celeste oscuro claro
                         ),
                         SizedBox(height: 8),
                         Text(
                           'OTRO',
                           style: TextStyle(
                             fontFamily: 'Exo2',
-                            fontWeight: FontWeight.bold,
                             fontSize: 20,
-                            color: Color(0xFF5B3E96), // Color púrpura USS
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF5F9EA0),
                           ),
                         ),
                       ],

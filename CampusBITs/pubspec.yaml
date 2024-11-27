@@ -1,32 +1,37 @@
 name: campus_bit_app
 description: "Campus Bit App para gestión de menús y compras."
 
-publish_to: "none" # Indica que este paquete no se publicará en pub.dev
+publish_to: "none" # Este paquete no se publicará en pub.dev
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0" # Compatible con Flutter estable y versiones recientes de plugins
+  sdk: ">=2.17.0 <4.0.0" # Compatible con Dart 3 y Flutter estable
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8 # Iconos de estilo iOS
-  sqflite: ^2.2.0+3 # Manejo de bases de datos SQLite
-  path: ^1.8.3 # Manejo de rutas en el sistema de archivos
-  provider: ^6.0.3 # Manejo de estado reactivo
-  uuid: ^3.0.6 # Generación de identificadores únicos (UUID)
-  qr_flutter: ^4.0.0 # Librería para generar códigos QR
+  cupertino_icons: ^1.0.8
+  sqflite: ^2.2.9
+  path: ^1.8.3
+  provider: ^6.1.2 # Cambiada a una versión compatible
+  uuid: ^3.0.6
+  qr_flutter: ^4.0.0
+  sembast: ^3.2.1
+  sembast_web: ^2.4.0+4
+  sqflite_common_ffi: ^2.0.1 # Soporte para web y escritorio
+  qr: ^2.1.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0 # Lints para mantener el código limpio y consistente
+  flutter_lints: ^2.0.1 # Lints para mantener el código limpio y consistente
 
 flutter:
-  uses-material-design: true # Activa el diseño basado en Material Design
+  uses-material-design: true # Habilita Material Design para la app
 
-  # Activos de imagen utilizados en el proyecto
+  # Archivos de recursos de la app
   assets:
     - assets/uss_logo.png
     - assets/otros.png
@@ -37,7 +42,26 @@ flutter:
     - assets/AECafeteria.png
     - assets/LogoAPP.png
     - assets/MapaUSS.png
+    - assets/PromoDesayuno.png
+    - assets/PromoAlmuerzo.png
+    - assets/Cafe.png
+    - assets/MapaCacino.png
+    - assets/MapaCarpa.png
+    - assets/MapaDomo.png
+    - assets/MapaEstacionamiento.png
+    - assets/MapaFuncionarios.png
+    - assets/MapaHall.png
+    - assets/MapaHospital.png
+    - assets/Pollo.png
+    - assets/Consome.png
+    - assets/Jugo.png
+    - assets/Ensa.png
+    - assets/Bawl.png
+    - assets/Vegano.png
 
+
+
+  # Configuración de fuentes personalizadas
   fonts:
     - family: Exo2
       fonts:

@@ -1,34 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
+  <!-- Metadatos básicos -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Bit App</title>
-  <link rel="icon" href="icons/favicon.png" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- Título de la página -->
+  <title>CampusBite App</title>
+
+  <!-- Icono de la aplicación -->
+  <link rel="icon" href="icons/favicon.png" sizes="32x32" type="image/png">
   <link rel="manifest" href="manifest.json">
+
+  <!-- Colores y descripción -->
   <meta name="theme-color" content="#71679C">
   <meta name="description" content="Aplicación Campus Bit para gestión de menús y compras">
+  <meta name="keywords" content="Campus Bit, compras, menús, gestión, app web">
+  <meta name="author" content="Campus Bit Developers">
+
+  <!-- Estilos CSS básicos -->
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #F7F7F7;
+      /* Fondo claro por defecto */
     }
+
     #flutter-container {
       width: 100%;
       height: 100%;
     }
+
+    /* Indicador de carga inicial */
+    #loading-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      background-color: #71679C;
+      /* Color principal */
+      color: white;
+      font-size: 18px;
+    }
   </style>
 </head>
+
 <body>
-<script src="flutter.js" defer></script>
-<div id="flutter-container"></div>
-<script>
-  // Configuración inicial para ejecutar Flutter
-  const container = document.getElementById('flutter-container');
-  const script = document.createElement('script');
-  script.src = 'main.dart.js';
-  script.defer = true;
-  container.appendChild(script);
-</script>
+  <!-- Contenedor para Flutter -->
+  <div id="flutter-container">
+    <div id="loading-indicator">
+      Cargando Campus Bit App, por favor espera...
+    </div>
+  </div>
+
+  <!-- Archivo JS de Flutter -->
+  <script src="flutter.js" defer></script>
+  <script>
+    // Configuración inicial para cargar Flutter Web
+    window.addEventListener('load', () => {
+      const loadingIndicator = document.getElementById('loading-indicator');
+      const flutterScript = document.createElement('script');
+      flutterScript.src = 'main.dart.js';
+      flutterScript.defer = true;
+
+      // Cuando el script de Flutter se carga, elimina el indicador de carga
+      flutterScript.onload = () => {
+        loadingIndicator.remove();
+      };
+
+      // Añade el script al contenedor principal
+      document.getElementById('flutter-container').appendChild(flutterScript);
+    });
+  </script>
 </body>
+
 </html>

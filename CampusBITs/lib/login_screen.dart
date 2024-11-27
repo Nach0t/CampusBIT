@@ -10,23 +10,29 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
+  void _validateAndNavigate() {
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
 
-    if (username.isNotEmpty && password.isNotEmpty) {
+    if (username.isEmpty || password.isEmpty) {
+      // Mostrar un mensaje de error si los campos están vacíos
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Por favor, ingresa un nombre de usuario y una contraseña.',
+            style: TextStyle(fontFamily: 'Exo2'),
+          ),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } else {
       // Navegar a la pantalla de selección de empresa
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CompanySelectionScreen(username: username),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Por favor, ingresa un usuario y contraseña válidos'),
-          backgroundColor: Colors.redAccent,
+          builder: (context) => CompanySelectionScreen(
+            username: username,
+          ),
         ),
       );
     }
@@ -36,117 +42,148 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF4682B4),
+        elevation: 0,
         title: Text(
-          'Bienvenido a CambusBIT',
+          'Bienvenido a CampusBite',
           style: TextStyle(
             fontFamily: 'Exo2',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF87CEFA), // Celeste agua (color principal del AppBar)
         centerTitle: true,
-        elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente de celeste agua
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          // Fondo con gradiente
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
+              ),
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                'assets/LogoAPP.png', // Ruta de tu logo
-                height: 120,
-                fit: BoxFit.contain,
-              ),
-              SizedBox(height: 24),
-              Text(
-                'Inicia sesión',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Exo2',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 28,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: 24),
-              _buildTextField(
-                controller: _usernameController,
-                label: 'Usuario',
-                icon: Icons.person,
-              ),
-              SizedBox(height: 16),
-              _buildTextField(
-                controller: _passwordController,
-                label: 'Contraseña',
-                icon: Icons.lock,
-                isPassword: true,
-              ),
-              SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF87CEEB), // Celeste agua para el botón
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+          // Contenido del login
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Container(
+                  padding: const EdgeInsets.all(24.0),
+                  margin: const EdgeInsets.only(top: 50.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 15.0,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                ),
-                child: Text(
-                  'Ingresar',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Exo2',
-                    fontWeight: FontWeight.w300,
-                    fontStyle: FontStyle.italic,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/LogoAPP.png',
+                        height: 200,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(height: 24),
+                      // Campo de texto: Usuario
+                      TextField(
+                        controller: _usernameController,
+                        style: TextStyle(
+                          fontFamily: 'Exo2',
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'USUARIO',
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Exo2',
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFF5F9EA0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // Campo de texto: Contraseña
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        style: TextStyle(
+                          fontFamily: 'Exo2',
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'CONTRASEÑA',
+                          hintStyle: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Exo2',
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFF5F9EA0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      // Botón de ingresar
+                      ElevatedButton(
+                        onPressed: _validateAndNavigate,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 64.0, vertical: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          backgroundColor: Color(0xFF4682B4),
+                          elevation: 5,
+                        ),
+                        child: Text(
+                          'INGRESAR',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Exo2',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 32),
+                      Text(
+                        'Todos los derechos reservados para CampusBite',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 14,
+                          fontFamily: 'Exo2',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool isPassword = false,
-  }) {
-    return TextField(
-      controller: controller,
-      style: TextStyle(
-        fontFamily: 'Exo2',
-        fontWeight: FontWeight.w300,
-        fontStyle: FontStyle.italic,
-        color: Colors.white,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          fontFamily: 'Exo2',
-          fontWeight: FontWeight.w300,
-          fontStyle: FontStyle.italic,
-          color: Colors.white,
-        ),
-        prefixIcon: Icon(icon, color: Colors.white),
-        filled: true,
-        fillColor: Colors.grey[800],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20.0),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      obscureText: isPassword,
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'locales_screen.dart';
 import 'points_screen.dart';
-import 'generate_qr_code_screen.dart';
+import 'generate_qr_code_screen.dart'; // Cambio para manejar generación QR
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -14,9 +14,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
-  late final List<Widget> _screens;
+  int _currentIndex = 0;
+  late List<Widget> _screens;
 
   @override
   void initState() {
@@ -25,35 +24,30 @@ class _MainScreenState extends State<MainScreen> {
       LocalesScreen(username: widget.username),
       PointsScreen(username: widget.username),
       GenerateQRCodeScreen(
-        purchasedItems: [],
-        lol: widget.username,
+        purchasedItems: [], // Lista vacía al inicio
+        lol: widget.username, // lol como username
         pickupPoint: 'Cafeteria',
       ),
       ProfileScreen(username: widget.username),
     ];
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Color(0xFF20B2AA),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Color(0xFF66CDAA),
-        type: BottomNavigationBarType.fixed,
-        items: const [
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        selectedItemColor: Color(0xFF4682B4), // **Celeste oscuro** seleccionado
+        unselectedItemColor: Colors.grey, // **Gris** para no seleccionados
+        backgroundColor: Color(0xFFB0E0E6), // **Celeste agua** para el fondo de la barra
+        type: BottomNavigationBarType.fixed, // Mantener el diseño fijo
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.store),
             label: 'Locales',

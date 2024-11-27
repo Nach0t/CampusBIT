@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Color(0xFF4682B4), // Celeste oscuro para la barra
         elevation: 0,
         title: Text(
           'Login',
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontFamily: 'Exo2',
                           ),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          fillColor: Color(0xFF4682B4), // Fondo celeste oscuro
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontFamily: 'Exo2',
                           ),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          fillColor: Color(0xFF4682B4), // Fondo celeste oscuro
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
@@ -150,11 +150,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 48.0, vertical: 16.0),
+                          padding: EdgeInsets.symmetric(horizontal: 64.0, vertical: 20.0), // Más grande
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          backgroundColor: Color(0xFF87CEEB),
+                          backgroundColor: Color(0xFF4682B4), // Botón celeste oscuro
                           elevation: 5,
                         ),
                         child: Text(

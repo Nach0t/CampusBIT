@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'DBHelper.dart';
 
 class PointsScreen extends StatefulWidget {
   final String username;
@@ -12,7 +11,6 @@ class PointsScreen extends StatefulWidget {
 
 class _PointsScreenState extends State<PointsScreen> {
   int totalPoints = 0;
-  final DBHelper dbHelper = DBHelper();
 
   @override
   void initState() {
@@ -20,44 +18,40 @@ class _PointsScreenState extends State<PointsScreen> {
     _loadUserPoints();
   }
 
+  /// Simulador para obtener los puntos de usuario
   Future<void> _loadUserPoints() async {
-    try {
-      int points = await dbHelper.getUserPoints(widget.username);
-      if (mounted) {
-        setState(() {
-          totalPoints = points;
-        });
-      }
-    } catch (e) {
-      print("Error loading user points: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar puntos de usuario')),
-      );
-    }
+    // Simulación de carga de puntos del usuario (puedes reemplazarlo con tu lógica)
+    await Future.delayed(Duration(milliseconds: 500)); // Simular retardo de carga
+    setState(() {
+      totalPoints = 1500; // Simular que el usuario tiene 1500 puntos
+    });
   }
 
+  /// Simulador para canjear un artículo
   Future<void> _redeemItem(String itemName, int cost) async {
     if (totalPoints >= cost) {
-      try {
-        await dbHelper.updateUserPoints(widget.username, totalPoints - cost);
-        await dbHelper.recordRedemptionTransaction(widget.username, itemName, cost);
-        if (mounted) {
-          setState(() {
-            totalPoints -= cost;
-          });
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Has canjeado: $itemName')),
-        );
-      } catch (e) {
-        print("Error redeeming item: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al canjear el artículo')),
-        );
-      }
-    } else {
+      // Restar los puntos al usuario
+      setState(() {
+        totalPoints -= cost;
+      });
+
+      // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No tienes suficientes puntos para canjear este artículo')),
+        SnackBar(
+          content: Text('¡Has canjeado: $itemName!', style: TextStyle(fontFamily: 'Exo2')),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      // Mostrar mensaje de error si no hay suficientes puntos
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No tienes suficientes puntos para canjear este artículo',
+            style: TextStyle(fontFamily: 'Exo2'),
+          ),
+          backgroundColor: Colors.redAccent,
+        ),
       );
     }
   }
@@ -66,14 +60,23 @@ class _PointsScreenState extends State<PointsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Canjea tus Puntos'),
-        backgroundColor: Color(0xFF5B3E96),
+        title: Text(
+          'Canjea tus Puntos',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF4682B4),
         centerTitle: true,
       ),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -84,13 +87,27 @@ class _PointsScreenState extends State<PointsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Text(
-                  'Puntos Totales: $totalPoints',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 5.0,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Puntos Totales: $totalPoints',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -98,16 +115,15 @@ class _PointsScreenState extends State<PointsScreen> {
               Text(
                 'Opciones de Canje:',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               SizedBox(height: 16),
-              _buildRedeemOption('Menú Ejecutivo', 1000),
-              _buildRedeemOption('Menú Junaeb', 1500),
-              _buildRedeemOption('Ticket de Compra por \$2000 CLP', 2000),
-              _buildRedeemOption('Ticket de Compra por \$3000 CLP', 3000),
+              _buildRedeemOption('Menú Junaeb', 700),
+              _buildRedeemOption('Menú Ejecutivo', 1200),
+              _buildRedeemOption('Ticket de Compra por \$5000 CLP', 4500),
             ],
           ),
         ),
@@ -115,12 +131,13 @@ class _PointsScreenState extends State<PointsScreen> {
     );
   }
 
+  /// Constructor de las opciones de canje
   Widget _buildRedeemOption(String itemName, int cost) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: totalPoints >= cost ? Colors.white : Colors.grey[600],
+          color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16.0),
           boxShadow: [
             BoxShadow(
@@ -133,30 +150,24 @@ class _PointsScreenState extends State<PointsScreen> {
         child: ListTile(
           title: Text(
             itemName,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: totalPoints >= cost ? Colors.black : Colors.white,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           subtitle: Text(
             'Costo: $cost puntos',
-            style: TextStyle(
-              color: totalPoints >= cost ? Colors.black87 : Colors.white70,
-            ),
+            style: TextStyle(color: Colors.white70),
           ),
           trailing: totalPoints >= cost
               ? ElevatedButton(
-                  onPressed: () => _redeemItem(itemName, cost),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF5B3E96),
-                  ),
-                  child: Text('Canjear', style: TextStyle(color: Colors.white)),
-                )
-              : Icon(
-                  Icons.lock,
-                  color: Colors.redAccent,
-                ),
+            onPressed: () => _redeemItem(itemName, cost),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF87CEEB),
+            ),
+            child: Text('Canjear', style: TextStyle(color: Colors.white)),
+          )
+              : Text(
+            'No suficientes puntos',
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );

@@ -11,83 +11,106 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Usuario',
-          style: TextStyle(
-            fontFamily: 'Exo2',
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
+          'Mi Perfil',
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF5B3E96),
         centerTitle: true,
+        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo con gradiente
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView(
+        child: Column(
           children: [
-            SizedBox(height: 40),
-            Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage('assets/profile_placeholder.png'),
+            // Encabezado destacado
+            Container(
+              margin: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2), // Fondo translúcido
+                borderRadius: BorderRadius.circular(16.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: AssetImage('assets/profile_placeholder.png'), // Imagen de perfil
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    username,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 20),
-            Center(
-              child: Text(
-                username,
-                style: TextStyle(
-                  fontFamily: 'Exo2',
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            // Opciones del menú
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                children: [
+                  _buildProfileOption(
+                    icon: Icons.payment,
+                    title: 'Métodos de Pago',
+                    onTap: () {
+                      // Acción para Métodos de Pago
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navegando a Métodos de Pago...')),
+                      );
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.history,
+                    title: 'Historial de Pedidos',
+                    onTap: () {
+                      // Acción para Historial de Pedidos
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navegando a Historial de Pedidos...')),
+                      );
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.settings,
+                    title: 'Configuraciones',
+                    onTap: () {
+                      // Acción para Configuraciones
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navegando a Configuraciones...')),
+                      );
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.logout,
+                    title: 'Cerrar Sesión',
+                    onTap: () {
+                      // Navegar a la pantalla de login
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
+                            (Route<dynamic> route) => false, // Elimina el historial
+                      );
+                    },
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 40),
-            _buildProfileOption(
-              icon: Icons.payment,
-              label: 'Métodos de Pago',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Métodos de Pago no disponible')),
-                );
-              },
-            ),
-            _buildProfileOption(
-              icon: Icons.history,
-              label: 'Historial de Pedidos',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Historial de Pedidos no disponible')),
-                );
-              },
-            ),
-            _buildProfileOption(
-              icon: Icons.settings,
-              label: 'Configuraciones',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Configuraciones no disponible')),
-                );
-              },
-            ),
-            _buildProfileOption(
-              icon: Icons.logout,
-              label: 'Cerrar Sesión',
-              onTap: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                  (Route<dynamic> route) => false,
-                );
-              },
             ),
           ],
         ),
@@ -97,36 +120,43 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileOption({
     required IconData icon,
-    required String label,
+    required String title,
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
-          borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10.0,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ListTile(
-          leading: Icon(icon, color: Color(0xFF5B3E96)),
-          title: Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Exo2',
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.0),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2), // Fondo translúcido
+            borderRadius: BorderRadius.circular(16.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 5.0,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
-          trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
-          onTap: onTap,
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 30),
+              SizedBox(width: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Spacer(),
+              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+            ],
+          ),
         ),
       ),
     );

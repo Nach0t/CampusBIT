@@ -1,116 +1,138 @@
 import 'package:flutter/material.dart';
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   final String username;
 
   MapScreen({required this.username});
 
-  final List<Map<String, dynamic>> locations = [
-    {
-      'name': 'Cafetería',
-      'position': Offset(75, 250),
-      'waitTime': '10-15 minutos',
-      'description': 'Lugar principal de alimentación en el campus.',
-    },
-    {
-      'name': 'Hall',
-      'position': Offset(180, 140),
-      'waitTime': '5-10 minutos',
-      'description': 'Zona central con acceso al auditorio.',
-    },
-    {
-      'name': 'Auditorio',
-      'position': Offset(230, 200),
-      'waitTime': '5-8 minutos',
-      'description': 'Espacio para eventos y conferencias.',
-    },
-    {
-      'name': 'Estacionamiento',
-      'position': Offset(300, 60),
-      'waitTime': '2-5 minutos',
-      'description': 'Estacionamiento amplio y seguro.',
-    },
-    {
-      'name': 'Carpa',
-      'position': Offset(350, 300),
-      'waitTime': '15-20 minutos',
-      'description': 'Espacio para reuniones temporales.',
-    },
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  // Lista de ubicaciones con sus detalles
+  final List<Map<String, String>> locations = [
+    {'name': 'Punto Casino', 'image': 'assets/MapaCacino.png'},
+    {'name': 'Punto Carpa', 'image': 'assets/MapaCarpa.png'},
+    {'name': 'Punto Domo', 'image': 'assets/MapaDomo.png'},
+    {'name': 'Punto Estacionamiento', 'image': 'assets/MapaEstacionamiento.png'},
+    {'name': 'Faculty', 'image': 'assets/MapaFuncionarios.png'},
+    {'name': 'Punto Hall', 'image': 'assets/MapaHall.png'},
+    {'name': 'Punto Hospital', 'image': 'assets/MapaHospital.png'},
   ];
+
+  String? selectedLocation; // Variable para el filtro de búsqueda
 
   @override
   Widget build(BuildContext context) {
+    // Filtrar ubicación seleccionada
+    final filteredLocations = selectedLocation == null
+        ? locations
+        : locations.where((loc) => loc['name'] == selectedLocation).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa de Locales'),
-        backgroundColor: Color(0xFF5B3E96),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              Image.asset(
-                'assets/MapaUSS.png',
-                width: MediaQuery.of(context).size.width, // Ajuste responsivo
-                height: MediaQuery.of(context).size.height * 0.8,
-                fit: BoxFit.contain, // Escala la imagen para mantener proporciones
-              ),
-              ...locations.map((location) {
-                return Positioned(
-                  left: location['position'].dx,
-                  top: location['position'].dy,
-                  child: GestureDetector(
-                    onTap: () {
-                      _showLocationInfo(context, location);
-                    },
-                    child: Icon(
-                      Icons.location_on,
-                      color: Colors.red.withOpacity(0.8),
-                      size: 30, // Tamaño del ícono
-                    ),
-                  ),
-                );
-              }).toList(),
-            ],
+        title: Text(
+          'Mapa de AE',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.w500,
           ),
         ),
+        backgroundColor: Color(0xFF4682B4), // Fondo celeste
+        centerTitle: true,
       ),
-    );
-  }
-
-  void _showLocationInfo(BuildContext context, Map<String, dynamic> location) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(location['name']),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Descripción:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(location['description'] ?? 'No disponible'),
-              SizedBox(height: 10),
-              Text(
-                'Tiempo de espera:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(location['waitTime'] ?? 'No disponible'),
-            ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente de fondo celeste
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cerrar'),
+        ),
+        child: Column(
+          children: [
+            // Filtro de búsqueda
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropdownButton<String>(
+                value: selectedLocation,
+                hint: Text(
+                  'Selecciona una ubicación',
+                  style: TextStyle(fontSize: 18),
+                ),
+                items: locations
+                    .map((loc) => DropdownMenuItem<String>(
+                  value: loc['name'],
+                  child: Text(loc['name']!),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedLocation = value;
+                  });
+                },
+                isExpanded: true,
+              ),
+            ),
+            // Mostrar mapa correspondiente
+            Expanded(
+              child: filteredLocations.isNotEmpty
+                  ? ListView.builder(
+                itemCount: filteredLocations.length,
+                itemBuilder: (context, index) {
+                  final loc = filteredLocations[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0), // Bordes redondeados
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 12.0), // Más espacio interno
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              loc['name']!,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4682B4),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12.0), // Bordes redondeados de la imagen
+                              child: Image.asset(
+                                loc['image']!,
+                                width: MediaQuery.of(context).size.width * 0.75, // Imagen más pequeña
+                                fit: BoxFit.contain, // Ajustar sin recortar
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+                  : Center(
+                child: Text(
+                  'No se encontró la ubicación seleccionada.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }

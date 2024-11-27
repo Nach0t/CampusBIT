@@ -10,6 +10,8 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
   List<Map<String, dynamic>> menuItems = [];
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  bool isLoading = true; // Estado para indicar si los datos están cargando
+  String errorMessage = ''; // Mensaje de error en caso de problemas
 
   @override
   void initState() {
@@ -30,59 +32,28 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
       final items = await dbHelper.getMenuItems();
       setState(() {
         menuItems = items;
+        isLoading = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar los productos.')),
-      );
+      setState(() {
+        errorMessage = 'Error al cargar los productos: $e';
+        isLoading = false;
+      });
     }
   }
 
   Future<void> _updatePrice(int id, int newPrice) async {
-    try {
-      final dbHelper = DBHelper();
-      await dbHelper.updateMenuItem(id, newPrice);
-      _loadMenuItems();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Precio actualizado correctamente.')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar el precio.')),
-      );
-    }
+    final dbHelper = DBHelper();
+    await dbHelper.updateMenuItem(id, newPrice);
+    _loadMenuItems();
   }
 
-  Future<void> _addMenuItem(String name, int price) async {
-    try {
-      final dbHelper = DBHelper();
-      await dbHelper.insertMenuItem(name, price);
-      _nameController.clear();
-      _priceController.clear();
-      _loadMenuItems();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Producto agregado correctamente.')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al agregar el producto.')),
-      );
-    }
-  }
+
 
   Future<void> _deleteMenuItem(int id) async {
-    try {
-      final dbHelper = DBHelper();
-      await dbHelper.deleteMenuItem(id);
-      _loadMenuItems();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Producto eliminado correctamente.')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al eliminar el producto.')),
-      );
-    }
+    final dbHelper = DBHelper();
+    await dbHelper.deleteMenuItem(id);
+    _loadMenuItems();
   }
 
   @override
@@ -91,21 +62,34 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
       appBar: AppBar(
         title: Text(
           'Editar Precios',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF5B3E96),
+        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
         elevation: 5.0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente celeste agua
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : errorMessage.isNotEmpty
+            ? Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(color: Colors.red, fontSize: 18),
+          ),
+        )
+            : Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -114,31 +98,45 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                   itemCount: menuItems.length,
                   itemBuilder: (context, index) {
                     final item = menuItems[index];
+                    final TextEditingController _priceController =
+                    TextEditingController(
+                        text: item['price'].toString());
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: Row(
                         children: [
                           Expanded(
                             child: TextField(
-                              controller: TextEditingController(
-                                  text: item['price'].toString()),
-                              style: TextStyle(color: Colors.white),
+                              controller: _priceController,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Exo2'),
                               decoration: InputDecoration(
                                 labelText: item['name'],
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: TextStyle(
+                                    color: Colors.white70,
+                                    fontFamily: 'Exo2'),
                                 filled: true,
-                                fillColor: Colors.grey[800],
+                                fillColor:
+                                Color(0xFF5F9EA0), // Celeste oscuro
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(12.0),
+                                  borderSide: BorderSide.none,
+                                ),
                               ),
                               keyboardType: TextInputType.number,
                               onSubmitted: (value) {
-                                if (value.isNotEmpty && int.tryParse(value) != null) {
-                                  _updatePrice(item['id'], int.parse(value));
+                                if (value.isNotEmpty) {
+                                  _updatePrice(
+                                      item['id'], int.parse(value));
                                 }
                               },
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
+                            icon:
+                            Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
                               _deleteMenuItem(item['id']);
                             },
@@ -152,28 +150,45 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
               SizedBox(height: 24),
               Text(
                 'Agregar Nuevo Producto',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: 'Exo2',
+                ),
               ),
               SizedBox(height: 16),
               TextField(
                 controller: _nameController,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                    color: Colors.white, fontFamily: 'Exo2'),
                 decoration: InputDecoration(
                   hintText: 'Nombre del Producto',
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: TextStyle(
+                      color: Colors.white70, fontFamily: 'Exo2'),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: Color(0xFF5F9EA0), // Celeste oscuro
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               SizedBox(height: 16),
               TextField(
                 controller: _priceController,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                    color: Colors.white, fontFamily: 'Exo2'),
                 decoration: InputDecoration(
                   hintText: 'Precio del Producto',
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: TextStyle(
+                      color: Colors.white70, fontFamily: 'Exo2'),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: Color(0xFF5F9EA0), // Celeste oscuro
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -181,15 +196,21 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_nameController.text.isNotEmpty &&
-                      _priceController.text.isNotEmpty &&
-                      int.tryParse(_priceController.text) != null) {
-                    _addMenuItem(
-                        _nameController.text, int.parse(_priceController.text));
+                      _priceController.text.isNotEmpty) {
+
                   }
                 },
-                child: Text('Agregar Producto', style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Agregar Producto',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Exo2',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF5B3E96),
+                  backgroundColor:
+                  Color(0xFF4682B4), // Celeste oscuro
                   elevation: 5.0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),

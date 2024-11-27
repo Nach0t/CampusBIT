@@ -1,104 +1,133 @@
+import 'package:flutter/material.dart';
+
 class RestaurantCard extends StatelessWidget {
-  final String restaurantName;
-  final String description;
-  final double rating;
-  final String imagePath;
-  final String discount;
-
-  RestaurantCard({
-    required this.restaurantName,
-    required this.description,
-    required this.rating,
-    required this.imagePath,
-    required this.discount,
-  });
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Todos los restaurantes',
+          style: TextStyle(
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-                child: Image.asset(
-                  imagePath,
-                  height: 180,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              // Imagen destacada
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+                    child: Image.asset(
+                      'assets/AECafeteria.png', // Imagen de la carpeta assets
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                  size: 30,
+              // Información del restaurante
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Alimento Express Cafeteria',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Exo2',
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Comida Casera • €€',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontFamily: 'Exo2',
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    // Calificación
+                    Row(
+                      children: [
+                        Row(
+                          children: List.generate(5, (index) {
+                            return Icon(
+                              Icons.star_border,
+                              color: Color(0xFF4682B4), // Celeste oscuro para las estrellas
+                              size: 20,
+                            );
+                          }),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '(0)', // Calificación
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF4682B4), // Celeste oscuro para el texto
+                            fontFamily: 'Exo2',
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    // Descuento
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF5F9EA0), // Verde azulado para el descuento
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Text(
+                          '20% Dto.',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Exo2',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  restaurantName,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Row(
-                      children: List.generate(5, (index) {
-                        return Icon(
-                          index < rating ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
-                          size: 20,
-                        );
-                      }),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '($rating)',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                    decoration: BoxDecoration(
-                      color: Color(0xFF5B3E96),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Text(
-                      discount,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
-

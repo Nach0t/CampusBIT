@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'MenuScreen.dart';
-import 'dart:math';
+import 'wait_time_utils.dart'; // Importamos la lógica del tiempo de espera
 
 class PuntoRetiroScreen extends StatelessWidget {
   final String username;
@@ -8,68 +8,83 @@ class PuntoRetiroScreen extends StatelessWidget {
 
   PuntoRetiroScreen({required this.username, required this.localName});
 
-  String _calcularTiempoEspera() {
-    // Obtener la hora actual
-    DateTime now = DateTime.now();
-    int hour = now.hour;
-
-    if (hour >= 13 && hour < 14) {
-      return '20-30 minutos (mayor tiempo de espera entre 13:00 y 14:00)';
-    } else {
-      return '${Random().nextInt(10) + 5}-${Random().nextInt(15) + 10} minutos';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Punto de Retiro: Cafeteria',
-          style: TextStyle(color: Colors.white),
+          'Punto de Retiro',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Exo2',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF5B3E96),
+        backgroundColor: Color(0xFF4682B4),
         elevation: 5.0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF71679C), Color(0xFF44337A)],
+            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Punto de retiro:',
+                'Cafeteria Principal',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  fontFamily: 'Exo2',
                 ),
+                textAlign: TextAlign.center,
               ),
-              SizedBox(height: 16),
-              _buildLocalCard('Cafeteria'),
               SizedBox(height: 24),
-              Text(
-                'Tiempo de espera aproximado:',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
+              _buildImageCard(),
+              SizedBox(height: 24),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(16.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10.0,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                _calcularTiempoEspera(),
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Tiempo de espera aproximado:',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Exo2',
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      calcularTiempoEspera(localName),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF4682B4),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Exo2',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 32),
@@ -85,13 +100,19 @@ class PuntoRetiroScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 48.0, vertical: 16.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
-                  backgroundColor: Color(0xFF5B3E96),
+                  backgroundColor: Color(0xFF4682B4),
+                  elevation: 5,
                 ),
                 child: Text(
                   'Ver Productos',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontFamily: 'Exo2',
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -101,26 +122,27 @@ class PuntoRetiroScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLocalCard(String localName) {
+  Widget _buildImageCard() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
-            blurRadius: 15.0,
-            offset: Offset(0, 8),
+            blurRadius: 10.0,
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Text(
-        localName,
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF5B3E96),
+      padding: const EdgeInsets.all(12.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: Image.asset(
+          'assets/AECafeteria.png',
+          height: 200,
+          width: double.infinity,
+          fit: BoxFit.cover,
         ),
       ),
     );
