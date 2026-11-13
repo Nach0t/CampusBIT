@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'locales_screen.dart';
 import 'points_screen.dart';
-import 'generate_qr_code_screen.dart'; // Cambio para manejar generación QR
+import 'qr_codes_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,11 +23,7 @@ class _MainScreenState extends State<MainScreen> {
     _screens = [
       LocalesScreen(username: widget.username),
       PointsScreen(username: widget.username),
-      GenerateQRCodeScreen(
-        purchasedItems: const [], // Lista vacía al inicio
-        username: widget.username, // username como username
-        pickupPoint: 'Cafeteria',
-      ),
+      QrCodesScreen(username: widget.username),
       ProfileScreen(username: widget.username),
     ];
   }

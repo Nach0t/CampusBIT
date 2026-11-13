@@ -10,8 +10,9 @@ import 'models.dart';
 /// - v2: + generated_qr.
 /// - v3: + menu_items.description; redemption_transactions se reemplaza por
 ///   transactions (compras y canjes con tipo y puntos), copiando los datos.
+/// - v4: + menu_items.category ('promo' o 'almuerzo').
 class SqliteAppDatabase implements AppDatabase {
-  static const int schemaVersion = 3;
+  static const int schemaVersion = 4;
 
   final Database _db;
 
@@ -48,7 +49,8 @@ class SqliteAppDatabase implements AppDatabase {
         name TEXT NOT NULL,
         price INTEGER NOT NULL,
         images TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT ''
+        description TEXT NOT NULL DEFAULT '',
+        category TEXT NOT NULL DEFAULT 'almuerzo'
       )
     ''');
     batch.execute(_createUserPoints);
@@ -88,6 +90,16 @@ class SqliteAppDatabase implements AppDatabase {
         ''');
         await db.execute('DROP TABLE redemption_transactions');
       }
+    }
+    if (oldVersion < 4) {
+      await db.execute(
+        "ALTER TABLE menu_items ADD COLUMN category TEXT NOT NULL "
+        "DEFAULT 'almuerzo'",
+      );
+      // Las promociones existentes se reconocen por su nombre.
+      await db.execute(
+        "UPDATE menu_items SET category = 'promo' WHERE name LIKE 'Promo%'",
+      );
     }
   }
 
@@ -139,6 +151,7 @@ class SqliteAppDatabase implements AppDatabase {
         'price': item.price,
         'description': item.description,
         'images': encodeImages(item.images),
+        'category': item.category.name,
       };
 
   static MenuItem _menuItemFromRow(Map<String, Object?> row) => MenuItem(
@@ -147,6 +160,7 @@ class SqliteAppDatabase implements AppDatabase {
         price: row['price'] as int,
         description: (row['description'] as String?) ?? '',
         images: decodeImages(row['images']),
+        category: MenuCategory.fromName(row['category']),
       );
 
   @override
@@ -185,11 +199,16 @@ class SqliteAppDatabase implements AppDatabase {
 
   @override
   Future<void> insertQrCodes(List<GeneratedQr> codes) async {
-    final batch = _db.batch();
+    await _db.transaction((txn) => _insertQrCodes(txn, codes));
+  }
+
+  static Future<void> _insertQrCodes(
+    DatabaseExecutor db,
+    List<GeneratedQr> codes,
+  ) async {
     for (final code in codes) {
-      batch.insert('generated_qr', code.toMap());
+      await db.insert('generated_qr', code.toMap());
     }
-    await batch.commit(noResult: true);
   }
 
   @override
@@ -247,8 +266,10 @@ class SqliteAppDatabase implements AppDatabase {
     required int amount,
     required int pointsEarned,
     String description = 'Compra',
+    List<GeneratedQr> qrCodes = const [],
   }) {
     return _db.transaction((txn) async {
+      await _insertQrCodes(txn, qrCodes);
       final balance = await _readPoints(txn, username) + pointsEarned;
       await _writePoints(txn, username, balance);
       await txn.insert(
@@ -271,11 +292,13 @@ class SqliteAppDatabase implements AppDatabase {
     required String username,
     required String itemName,
     required int cost,
+    GeneratedQr? qrCode,
   }) {
     return _db.transaction((txn) async {
       final current = await _readPoints(txn, username);
       if (cost <= 0 || current < cost) return false;
       await _writePoints(txn, username, current - cost);
+      if (qrCode != null) await _insertQrCodes(txn, [qrCode]);
       await txn.insert(
         'transactions',
         PointsTransaction(

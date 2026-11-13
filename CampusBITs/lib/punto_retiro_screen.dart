@@ -93,7 +93,10 @@ class PuntoRetiroScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MenuScreen(username: username),
+                      builder: (context) => MenuScreen(
+                        username: username,
+                        pickupPoint: localName,
+                      ),
                     ),
                   );
                 },

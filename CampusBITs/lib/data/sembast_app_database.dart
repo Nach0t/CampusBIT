@@ -8,8 +8,9 @@ import 'models.dart';
 /// Historial de versiones:
 /// - v1: todo se guardaba mezclado en el store principal (`StoreRef.main()`).
 /// - v2: un store por tipo de dato; los datos de v1 se trasladan al abrir.
+/// - v3: los productos guardan su categoría ('promo' o 'almuerzo').
 class SembastAppDatabase implements AppDatabase {
-  static const int schemaVersion = 2;
+  static const int schemaVersion = 3;
 
   static final _menu = intMapStoreFactory.store('menu_items');
   static final _qr = stringMapStoreFactory.store('generated_qr');
@@ -34,9 +35,10 @@ class SembastAppDatabase implements AppDatabase {
       onVersionChanged: (db, oldVersion, newVersion) async {
         if (oldVersion == 0) {
           await _seedMenu(db); // Base nueva
-        } else if (oldVersion == 1) {
-          await _migrateFromMainStore(db);
+          return;
         }
+        if (oldVersion < 2) await _migrateFromMainStore(db);
+        if (oldVersion < 3) await _addCategories(db);
       },
     );
     return SembastAppDatabase._(db);
@@ -68,6 +70,7 @@ class SembastAppDatabase implements AppDatabase {
               name: map['name'] as String,
               price: (map['price'] as num).toInt(),
               images: decodeImages(map['images']),
+              category: _legacyCategory(map['name'] as String),
             )),
           );
         } else if (map.containsKey('item_name')) {
@@ -111,6 +114,23 @@ class SembastAppDatabase implements AppDatabase {
     });
   }
 
+  /// v3: asigna categoría a los productos que no la tienen.
+  static Future<void> _addCategories(Database db) async {
+    await db.transaction((txn) async {
+      final records = await _menu.find(txn);
+      for (final record in records) {
+        if (record.value['category'] != null) continue;
+        final category = _legacyCategory(record.value['name'] as String);
+        await _menu.record(record.key).update(txn, {'category': category.name});
+      }
+    });
+  }
+
+  /// Datos anteriores a v3: las promociones se reconocen por su nombre
+  /// (misma regla que la migración v4 de SQLite).
+  static MenuCategory _legacyCategory(String name) =>
+      name.startsWith('Promo') ? MenuCategory.promo : MenuCategory.almuerzo;
+
   // ---------------------------------------------------------------------
   // Menú
   // ---------------------------------------------------------------------
@@ -120,6 +140,7 @@ class SembastAppDatabase implements AppDatabase {
         'price': item.price,
         'description': item.description,
         'images': item.images,
+        'category': item.category.name,
       };
 
   static MenuItem _menuItemFromRecord(
@@ -132,6 +153,7 @@ class SembastAppDatabase implements AppDatabase {
       price: (v['price'] as num).toInt(),
       description: (v['description'] as String?) ?? '',
       images: decodeImages(v['images']),
+      category: MenuCategory.fromName(v['category']),
     );
   }
 
@@ -169,11 +191,21 @@ class SembastAppDatabase implements AppDatabase {
 
   @override
   Future<void> insertQrCodes(List<GeneratedQr> codes) async {
-    await _db.transaction((txn) async {
-      for (final code in codes) {
-        await _qr.record(code.id).put(txn, code.toMap());
+    await _db.transaction((txn) => _insertQrCodes(txn, codes));
+  }
+
+  static Future<void> _insertQrCodes(
+    DatabaseClient db,
+    List<GeneratedQr> codes,
+  ) async {
+    for (final code in codes) {
+      // Igual que la clave primaria en SQLite: un id repetido es un error
+      // y deshace toda la transacción (nunca se sobrescribe un QR).
+      final key = await _qr.record(code.id).add(db, code.toMap());
+      if (key == null) {
+        throw StateError('Ya existe un código QR con id ${code.id}');
       }
-    });
+    }
   }
 
   @override
@@ -211,8 +243,10 @@ class SembastAppDatabase implements AppDatabase {
     required int amount,
     required int pointsEarned,
     String description = 'Compra',
+    List<GeneratedQr> qrCodes = const [],
   }) {
     return _db.transaction((txn) async {
+      await _insertQrCodes(txn, qrCodes);
       final balance = await _readPoints(txn, username) + pointsEarned;
       await _points.record(username).put(txn, {'points': balance});
       await _transactions.add(
@@ -235,11 +269,13 @@ class SembastAppDatabase implements AppDatabase {
     required String username,
     required String itemName,
     required int cost,
+    GeneratedQr? qrCode,
   }) {
     return _db.transaction((txn) async {
       final current = await _readPoints(txn, username);
       if (cost <= 0 || current < cost) return false;
       await _points.record(username).put(txn, {'points': current - cost});
+      if (qrCode != null) await _insertQrCodes(txn, [qrCode]);
       await _transactions.add(
         txn,
         PointsTransaction(

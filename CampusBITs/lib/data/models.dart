@@ -1,5 +1,19 @@
 import 'dart:convert';
 
+/// Sección del menú donde aparece un producto.
+enum MenuCategory {
+  promo('Promoción'),
+  almuerzo('Almuerzo');
+
+  const MenuCategory(this.label);
+  final String label;
+
+  static MenuCategory fromName(Object? name) => MenuCategory.values.firstWhere(
+        (c) => c.name == name,
+        orElse: () => MenuCategory.almuerzo,
+      );
+}
+
 /// Producto del menú (almuerzos, promos, etc.).
 class MenuItem {
   final int? id;
@@ -7,6 +21,7 @@ class MenuItem {
   final int price;
   final String description;
   final List<String> images;
+  final MenuCategory category;
 
   const MenuItem({
     this.id,
@@ -14,6 +29,7 @@ class MenuItem {
     required this.price,
     this.description = '',
     this.images = const [],
+    this.category = MenuCategory.almuerzo,
   });
 
   MenuItem copyWith({
@@ -22,6 +38,7 @@ class MenuItem {
     int? price,
     String? description,
     List<String>? images,
+    MenuCategory? category,
   }) {
     return MenuItem(
       id: id ?? this.id,
@@ -29,6 +46,7 @@ class MenuItem {
       price: price ?? this.price,
       description: description ?? this.description,
       images: images ?? this.images,
+      category: category ?? this.category,
     );
   }
 

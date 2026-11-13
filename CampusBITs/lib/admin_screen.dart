@@ -73,10 +73,31 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  Future<void> _addNewMenuItem(String name, int price) async {
+  Future<void> _confirmDelete(MenuItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar producto'),
+        content: Text('¿Eliminar "${item.name}" del menú?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await _deleteMenuItem(item.id!);
+  }
+
+  Future<void> _addNewMenuItem(MenuItem item) async {
     try {
       final db = await DBHelper.database;
-      await db.insertMenuItem(MenuItem(name: name, price: price));
+      await db.insertMenuItem(item);
       _fetchMenuItems();
     } catch (e) {
       if (!mounted) return;
@@ -154,7 +175,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      _deleteMenuItem(item.id!);
+                      _confirmDelete(item);
                     },
                   ),
                 ],
@@ -172,51 +193,81 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   void _showAddItemDialog() {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController priceController = TextEditingController();
+    final nameController = TextEditingController();
+    final priceController = TextEditingController();
+    final descriptionController = TextEditingController();
+    var category = MenuCategory.almuerzo;
+    String? error;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Agregar Nuevo Producto'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Agregar Nuevo Producto'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Nombre'),
+                ),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(labelText: 'Precio'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration:
+                      const InputDecoration(labelText: 'Descripción (opcional)'),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<MenuCategory>(
+                  initialValue: category,
+                  decoration: const InputDecoration(labelText: 'Sección'),
+                  items: [
+                    for (final c in MenuCategory.values)
+                      DropdownMenuItem(value: c, child: Text(c.label)),
+                  ],
+                  onChanged: (value) =>
+                      setDialogState(() => category = value ?? category),
+                ),
+                if (error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(error!, style: const TextStyle(color: Colors.red)),
+                  ),
+              ],
             ),
-            TextField(
-              controller: priceController,
-              decoration: const InputDecoration(labelText: 'Precio'),
-              keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                final price = int.tryParse(priceController.text.trim()) ?? 0;
+                if (name.isEmpty || price <= 0) {
+                  setDialogState(() => error =
+                      'Ingresa un nombre y un precio mayor que 0.');
+                  return;
+                }
+                _addNewMenuItem(MenuItem(
+                  name: name,
+                  price: price,
+                  description: descriptionController.text.trim(),
+                  category: category,
+                ));
+                Navigator.pop(context);
+              },
+              child: const Text('Agregar'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              final price = int.tryParse(priceController.text) ?? 0;
-              if (name.isNotEmpty && price > 0) {
-                _addNewMenuItem(name, price);
-                Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Nombre o precio inválidos'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: const Text('Agregar'),
-          ),
-        ],
       ),
     );
   }

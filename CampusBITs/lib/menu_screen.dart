@@ -1,74 +1,84 @@
 import 'package:flutter/material.dart';
+
 import 'cart_screen.dart';
+import 'data/db_helper.dart';
+import 'logic/cart.dart';
 
 class MenuScreen extends StatefulWidget {
   final String username;
+  final String pickupPoint;
 
-  const MenuScreen({super.key, required this.username});
+  const MenuScreen({
+    super.key,
+    required this.username,
+    required this.pickupPoint,
+  });
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  List<Map<String, dynamic>> menuItems = [];
-  List<Map<String, dynamic>> cartItems = [];
+  final Cart _cart = Cart();
+  List<MenuItem> menuItems = [];
   bool isLoading = true;
   String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-
-    // Configuración inicial del menú
-    menuItems = [
-      {
-        'name': 'Almuerzo ejecutivo',
-        'price': 3500,
-        'images': [
-          'assets/Pollo.png',
-          'assets/Consome.png',
-          'assets/Jugo.png',
-          'assets/Ensa.png'
-        ],
-        'description': 'Incluye consomé, plato fuerte, ensalada y jugo.'
-      },
-      {
-        'name': 'Almuerzo normal',
-        'price': 3300,
-        'images': ['assets/Pollo.png', 'assets/Consome.png', 'assets/Jugo.png'],
-        'description': 'Incluye consomé, plato fuerte y jugo.'
-      },
-      {
-        'name': 'Hipocalórico',
-        'price': 3200,
-        'images': ['assets/Bawl.png'],
-        'description': 'Bawl naturista a elección.'
-      },
-      {
-        'name': 'Vegetariana',
-        'price': 3000,
-        'images': ['assets/Vegano.png'],
-        'description': 'Hamburgesa de quinoa con arroz.'
-      },
-    ];
-    setState(() {
-      isLoading = false;
-    });
+    _loadMenu();
   }
 
-  void _addToCart(Map<String, dynamic> item) {
-    setState(() {
-      cartItems.add(item);
-    });
+  @override
+  void dispose() {
+    _cart.dispose();
+    super.dispose();
   }
 
-  int getCartItemCount() {
-    return cartItems.length;
+  /// El catálogo viene siempre de la base de datos, así los cambios del
+  /// administrador se ven al abrir el menú.
+  Future<void> _loadMenu() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+    });
+    try {
+      final db = await DBHelper.database;
+      final items = await db.getMenuItems();
+      if (!mounted) return;
+      setState(() {
+        menuItems = items;
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = 'Error al cargar el menú: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  void _addToCart(MenuItem item) {
+    _cart.add(item);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${item.name} agregado al carrito'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
+    final promos =
+        menuItems.where((m) => m.category == MenuCategory.promo).toList();
+    final almuerzos =
+        menuItems.where((m) => m.category == MenuCategory.almuerzo).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -90,71 +100,88 @@ class _MenuScreenState extends State<MenuScreen> {
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : errorMessage.isNotEmpty
-            ? Center(
-          child: Text(
-            errorMessage,
-            style: const TextStyle(color: Colors.red, fontSize: 18),
-          ),
-        )
-            : Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ? _buildError()
+                : Column(
                     children: [
-                      const Text(
-                        'Promoción Semanal:',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: _loadMenu,
+                          child: ListView(
+                            padding: const EdgeInsets.all(16.0),
+                            children: [
+                              if (menuItems.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 48),
+                                  child: Text(
+                                    'No hay productos disponibles.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
+                                ),
+                              if (promos.isNotEmpty) ...[
+                                _buildSectionTitle('Promoción Semanal:'),
+                                for (final item in promos) _buildMenuCard(item),
+                                const SizedBox(height: 16),
+                              ],
+                              if (almuerzos.isNotEmpty) ...[
+                                _buildSectionTitle('Almuerzos Disponibles:'),
+                                for (final item in almuerzos)
+                                  _buildMenuCard(item),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      _buildPromoItem(
-                        'Promo desayuno',
-                        1800,
-                        ['assets/PromoDesayuno.png', 'assets/Cafe.png'],
-                        'PAN CON PALTA JAMÓN + CAFÉ EXPRESO PEQUEÑO',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPromoItem(
-                        'Promo almuerzo',
-                        2500,
-                        ['assets/PromoAlmuerzo.png', 'assets/Cafe.png'],
-                        'SAND CHEESEBURGER BBQ + BEBIDA MÁQUINA O JUGO 200 CC',
-                      ),
-                      const SizedBox(height: 32),
-                      const Text(
-                        'Almuerzos Disponibles:',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildAlmuerzoSection(menuItems),
+                      _buildCartButton(),
                     ],
                   ),
-                ),
-              ),
+      ),
+    );
+  }
+
+  Widget _buildError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red, fontSize: 18),
             ),
-            _buildCartButton(),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadMenu,
+              child: const Text('Reintentar'),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPromoItem(
-      String name, int price, List<String> imagePaths, String description) {
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(MenuItem item) {
     return Card(
       color: Colors.white.withValues(alpha: 0.1),
       elevation: 3,
+      margin: const EdgeInsets.only(bottom: 16.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
       ),
@@ -164,7 +191,7 @@ class _MenuScreenState extends State<MenuScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '$name - \$$price',
+              '${item.name} - \$${item.price}',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -174,132 +201,53 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
           SizedBox(
             height: 150,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: imagePaths.map((path) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: Image.asset(
-                      path,
-                      fit: BoxFit.cover,
-                      width: 120,
-                    ),
+            child: item.images.isNotEmpty
+                ? ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: item.images.map((path) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.asset(
+                            path,
+                            fit: BoxFit.cover,
+                            width: 120,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const SizedBox(
+                              width: 120,
+                              child: Icon(Icons.image_not_supported,
+                                  color: Colors.white70, size: 48),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                : const Center(
+                    child: Icon(Icons.restaurant,
+                        color: Colors.white70, size: 64),
                   ),
-                );
-              }).toList(),
-            ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Text(
-              description,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
+          if (item.description.isNotEmpty)
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Text(
+                item.description,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _addToCart({'name': name, 'price': price});
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4682B4),
-                elevation: 3.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              child: const Text('Añadir', style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlmuerzoSection(List<Map<String, dynamic>> almuerzos) {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: almuerzos.length,
-      itemBuilder: (context, index) {
-        final item = almuerzos[index];
-
-        final List<String> images = item['images'] is List
-            ? List<String>.from(item['images'])
-            : [];
-        final String description =
-            item['description'] ?? 'Descripción no disponible';
-
-        return Card(
-          color: Colors.white.withValues(alpha: 0.1),
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  '${item['name']} - \$${item['price']}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 150,
-                child: images.isNotEmpty
-                    ? ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: images.map((path) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.asset(
-                          path,
-                          fit: BoxFit.cover,
-                          width: 120,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                )
-                    : const Center(
-                  child: Text(
-                    'No hay imágenes',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: Text(
-                  description,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _addToCart(item);
-                  },
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => _addToCart(item),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4682B4),
                     elevation: 3.0,
@@ -307,66 +255,100 @@ class _MenuScreenState extends State<MenuScreen> {
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  child: const Text('Añadir', style: TextStyle(color: Colors.white)),
+                  child: const Text('Añadir',
+                      style: TextStyle(color: Colors.white)),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCartButton() {
-    return Container(
-      color: Colors.grey[800],
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.shopping_cart, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(
-                'Carrito (${getCartItemCount()})',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
+                const SizedBox(width: 12),
+                ListenableBuilder(
+                  listenable: _cart,
+                  builder: (context, _) {
+                    final qty = _cart.quantityOf(item);
+                    return qty == 0
+                        ? const SizedBox.shrink()
+                        : Text(
+                            '$qty en el carrito',
+                            style: const TextStyle(color: Colors.white),
+                          );
+                  },
                 ),
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: cartItems.isNotEmpty
-                ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CartScreen(
-                    cartItems: cartItems,
-                    username: widget.username,
-                  ),
-                ),
-              );
-            }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: cartItems.isNotEmpty ? Colors.white : Colors.grey[600],
-              elevation: 3.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            ),
-            child: Text(
-              'Ir al Carrito',
-              style: TextStyle(
-                color: cartItems.isNotEmpty ? const Color(0xFF4682B4) : Colors.grey,
-              ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCartButton() {
+    return ListenableBuilder(
+      listenable: _cart,
+      builder: (context, _) {
+        final hasItems = !_cart.isEmpty;
+        return Container(
+          color: Colors.grey[800],
+          padding: const EdgeInsets.all(16.0),
+          child: SafeArea(
+            top: false,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.shopping_cart, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          'Carrito (${_cart.itemCount}) · \$${_cart.total}',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: hasItems
+                      ? () {
+                          // El aviso "agregado al carrito" taparía el botón
+                          // "Pagar" de la pantalla siguiente.
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CartScreen(
+                                cart: _cart,
+                                username: widget.username,
+                                pickupPoint: widget.pickupPoint,
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        hasItems ? Colors.white : Colors.grey[600],
+                    elevation: 3.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  child: Text(
+                    'Ir al Carrito',
+                    style: TextStyle(
+                      color:
+                          hasItems ? const Color(0xFF4682B4) : Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

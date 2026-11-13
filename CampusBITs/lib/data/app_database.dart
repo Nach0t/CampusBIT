@@ -26,21 +26,25 @@ abstract class AppDatabase {
   /// Saldo actual (0 si el usuario aún no tiene registro).
   Future<int> getUserPoints(String username);
 
-  /// Registra una compra y suma [pointsEarned] al saldo, de forma atómica.
-  /// Devuelve el nuevo saldo.
+  /// Registra una compra en una sola transacción: guarda los [qrCodes]
+  /// del pedido, suma [pointsEarned] al saldo y anota el movimiento.
+  /// Si algo falla no se guarda nada. Devuelve el nuevo saldo.
   Future<int> recordPurchase({
     required String username,
     required int amount,
     required int pointsEarned,
     String description = 'Compra',
+    List<GeneratedQr> qrCodes = const [],
   });
 
-  /// Canjea [cost] puntos. Si el saldo no alcanza no cambia nada y
-  /// devuelve `false`. Todo ocurre dentro de una transacción.
+  /// Canjea [cost] puntos y, si se indica, guarda el [qrCode] del premio.
+  /// Si el saldo no alcanza no cambia nada y devuelve `false`.
+  /// Todo ocurre dentro de una transacción.
   Future<bool> redeemPoints({
     required String username,
     required String itemName,
     required int cost,
+    GeneratedQr? qrCode,
   });
 
   /// Historial del usuario, del más reciente al más antiguo.
@@ -56,13 +60,15 @@ const List<MenuItem> defaultMenuItems = [
   MenuItem(
     name: 'Promo desayuno',
     price: 1800,
-    description: 'Desayuno con café.',
+    category: MenuCategory.promo,
+    description: 'Pan con palta jamón + café expreso pequeño.',
     images: ['assets/PromoDesayuno.png', 'assets/Cafe.png'],
   ),
   MenuItem(
     name: 'Promo almuerzo',
     price: 2500,
-    description: 'Almuerzo con café.',
+    category: MenuCategory.promo,
+    description: 'Sándwich cheeseburger BBQ + bebida de máquina o jugo 200 cc.',
     images: ['assets/PromoAlmuerzo.png', 'assets/Cafe.png'],
   ),
   MenuItem(

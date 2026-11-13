@@ -43,7 +43,7 @@ void main() {
     runContract((name) => SembastAppDatabase.open(factory, name), uniqueName);
   });
 
-  group('Migración SQLite v2 -> v3', () {
+  group('Migración SQLite v2 -> v4', () {
     test('conserva menú, QR, puntos y transacciones', () async {
       final path = p.join(tempDir.path, 'legacy_v2.db');
       final old = await databaseFactoryFfi.openDatabase(
@@ -105,6 +105,8 @@ void main() {
       expect(menu.first.images, ['assets/PromoDesayuno.png', 'assets/Cafe.png']);
       expect(menu.last.images, isEmpty);
       expect(menu.first.description, '');
+      expect(menu.first.category, MenuCategory.promo);
+      expect(menu.last.category, MenuCategory.almuerzo);
 
       expect(await db.getUserPoints('ana'), 70);
       expect((await db.getQrCodesForUser('ana')).single.id, 'qr-1');
@@ -122,7 +124,7 @@ void main() {
     });
   });
 
-  group('Migración Sembast v1 -> v2', () {
+  group('Migración Sembast v1 -> v3', () {
     test('separa el store único en stores por tipo', () async {
       final factory = newDatabaseFactoryMemory();
       final main = sembast.StoreRef<Object?, Object?>.main();
@@ -162,6 +164,7 @@ void main() {
       final menu = await db.getMenuItems();
       expect(menu.single.name, 'Promo desayuno');
       expect(menu.single.images, hasLength(2));
+      expect(menu.single.category, MenuCategory.promo);
       expect(await db.getUserPoints('ana'), 40);
 
       final qrs = await db.getQrCodesForUser('ana');
@@ -202,6 +205,9 @@ void runContract(Opener open, String Function() newName) {
       final ejecutivo = menu.firstWhere((m) => m.name == 'Almuerzo ejecutivo');
       expect(ejecutivo.images, hasLength(4));
       expect(ejecutivo.description, isNotEmpty);
+      expect(ejecutivo.category, MenuCategory.almuerzo);
+      final promos = menu.where((m) => m.category == MenuCategory.promo);
+      expect(promos.map((m) => m.name), ['Promo desayuno', 'Promo almuerzo']);
     });
 
     test('insertar, actualizar nombre y precio, y eliminar', () async {
@@ -209,6 +215,7 @@ void runContract(Opener open, String Function() newName) {
         name: 'Completo',
         price: 2000,
         images: ['assets/otros.png'],
+        category: MenuCategory.promo,
       ));
 
       var item = (await db.getMenuItems()).firstWhere((m) => m.id == id);
@@ -220,6 +227,7 @@ void runContract(Opener open, String Function() newName) {
       expect(item.name, 'Completo italiano');
       expect(item.price, 2500);
       expect(item.images, ['assets/otros.png']);
+      expect(item.category, MenuCategory.promo);
 
       await db.deleteMenuItem(id);
       expect((await db.getMenuItems()).where((m) => m.id == id), isEmpty);
@@ -302,6 +310,54 @@ void runContract(Opener open, String Function() newName) {
           isFalse);
       expect(await db.getUserPoints('ana'), 30);
       expect(await db.getTransactions('ana'), hasLength(1));
+    });
+
+    test('la compra guarda sus QR en la misma operación', () async {
+      await db.recordPurchase(
+        username: 'ana',
+        amount: 6600,
+        pointsEarned: 60,
+        qrCodes: [qr('q1', 'ana'), qr('q2', 'ana')],
+      );
+      expect((await db.getQrCodesForUser('ana')).map((q) => q.id).toSet(),
+          {'q1', 'q2'});
+      expect(await db.getUserPoints('ana'), 60);
+    });
+
+    test('si un QR falla, la compra no se guarda a medias', () async {
+      await db.insertQrCodes([qr('repetido', 'ana')]);
+      await expectLater(
+        db.recordPurchase(
+          username: 'ana',
+          amount: 3300,
+          pointsEarned: 30,
+          qrCodes: [qr('nuevo', 'ana'), qr('repetido', 'ana')],
+        ),
+        throwsA(anything),
+      );
+      expect(await db.getUserPoints('ana'), 0);
+      expect(await db.getTransactions('ana'), isEmpty);
+      expect((await db.getQrCodesForUser('ana')).map((q) => q.id),
+          ['repetido']);
+    });
+
+    test('el canje guarda el QR del premio solo si alcanza el saldo', () async {
+      await db.recordPurchase(username: 'ana', amount: 8000, pointsEarned: 80);
+
+      expect(
+        await db.redeemPoints(
+            username: 'ana', itemName: 'Caro', cost: 100, qrCode: qr('no', 'ana')),
+        isFalse,
+      );
+      expect(await db.getQrCodesForUser('ana'), isEmpty);
+
+      expect(
+        await db.redeemPoints(
+            username: 'ana', itemName: 'Café', cost: 50, qrCode: qr('si', 'ana')),
+        isTrue,
+      );
+      expect((await db.getQrCodesForUser('ana')).single.id, 'si');
+      expect(await db.getUserPoints('ana'), 30);
     });
 
     test('los puntos persisten al reiniciar', () async {
