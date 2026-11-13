@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'cart_screen.dart';
-import 'db_helper.dart';
 
 class MenuScreen extends StatefulWidget {
   final String username;
@@ -12,7 +11,6 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  final DBHelper dbHelper = DBHelper();
   List<Map<String, dynamic>> menuItems = [];
   List<Map<String, dynamic>> cartItems = [];
   bool isLoading = true;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'db_helper.dart'; // Conexión con SQLite
+import 'data/db_helper.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -9,7 +9,7 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
-  List<Map<String, dynamic>> _menuItems = []; // Lista para almacenar los productos
+  List<MenuItem> _menuItems = []; // Lista para almacenar los productos
   bool _isLoading = true; // Indicador de carga
 
   @override
@@ -20,8 +20,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   Future<void> _fetchMenuItems() async {
     try {
-      final dbHelper = DBHelper();
-      final items = await dbHelper.getMenuItems();
+      final db = await DBHelper.database;
+      final items = await db.getMenuItems();
       if (!mounted) return;
       setState(() {
         _menuItems = items;
@@ -41,10 +41,10 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  Future<void> _updateMenuItem(int id, String newName, int newPrice) async {
+  Future<void> _updateMenuItem(MenuItem item, String newName, int newPrice) async {
     try {
-      final dbHelper = DBHelper();
-      await dbHelper.updateMenuItem(id, newPrice, newName);
+      final db = await DBHelper.database;
+      await db.updateMenuItem(item.copyWith(name: newName, price: newPrice));
       _fetchMenuItems(); // Refrescar los datos
     } catch (e) {
       if (!mounted) return;
@@ -59,8 +59,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   Future<void> _deleteMenuItem(int id) async {
     try {
-      final dbHelper = DBHelper();
-      await dbHelper.deleteMenuItem(id);
+      final db = await DBHelper.database;
+      await db.deleteMenuItem(id);
       _fetchMenuItems();
     } catch (e) {
       if (!mounted) return;
@@ -75,8 +75,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   Future<void> _addNewMenuItem(String name, int price) async {
     try {
-      final dbHelper = DBHelper();
-      await dbHelper.insertMenuItem(name, price, '[]');
+      final db = await DBHelper.database;
+      await db.insertMenuItem(MenuItem(name: name, price: price));
       _fetchMenuItems();
     } catch (e) {
       if (!mounted) return;
@@ -103,9 +103,9 @@ class _AdminScreenState extends State<AdminScreen> {
         itemBuilder: (context, index) {
           final item = _menuItems[index];
           final TextEditingController nameController =
-          TextEditingController(text: item['name']);
+          TextEditingController(text: item.name);
           final TextEditingController priceController =
-          TextEditingController(text: item['price'].toString());
+          TextEditingController(text: item.price.toString());
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -140,7 +140,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       final newName = nameController.text.trim();
                       final newPrice = int.tryParse(priceController.text) ?? 0;
                       if (newName.isNotEmpty && newPrice > 0) {
-                        _updateMenuItem(item['id'], newName, newPrice);
+                        _updateMenuItem(item, newName, newPrice);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -154,7 +154,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      _deleteMenuItem(item['id']);
+                      _deleteMenuItem(item.id!);
                     },
                   ),
                 ],

@@ -1,42 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'data/models.dart';
 
 class QrDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> qrData;
+  final GeneratedQr qr;
 
-  const QrDetailScreen({super.key, required this.qrData});
+  const QrDetailScreen({super.key, required this.qr});
 
-  String formatValidity(String validity) {
-    try {
-      final dateTime = DateTime.parse(validity);
-      return "${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}";
-    } catch (e) {
-      return "Fecha no válida";
-    }
+  String formatValidity(DateTime validity) {
+    final d = validity.toLocal();
+    String two(int n) => n.toString().padLeft(2, '0');
+    return "${d.day}/${d.month}/${d.year} ${two(d.hour)}:${two(d.minute)}";
   }
 
   @override
   Widget build(BuildContext context) {
-    // Validar los datos del QR antes de renderizar la pantalla
-    if (qrData['menuType'] == null ||
-        qrData['username'] == null ||
-        qrData['pickupPoint'] == null ||
-        qrData['validity'] == null ||
-        qrData['price'] == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Detalles del QR'),
-          backgroundColor: const Color(0xFF87CEEB),
-        ),
-        body: const Center(
-          child: Text(
-            'Datos del QR incompletos o inválidos.',
-            style: TextStyle(fontSize: 18, color: Colors.red),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -66,11 +44,11 @@ class QrDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            _buildDetailRow('Menú', qrData['menuType']),
-            _buildDetailRow('Usuario', qrData['username']),
-            _buildDetailRow('Punto de Retiro', qrData['pickupPoint']),
-            _buildDetailRow('Validez', formatValidity(qrData['validity'])),
-            _buildDetailRow('Precio', "\$${qrData['price']}"),
+            _buildDetailRow('Menú', qr.menuType),
+            _buildDetailRow('Usuario', qr.username),
+            _buildDetailRow('Punto de Retiro', qr.pickupPoint),
+            _buildDetailRow('Validez', formatValidity(qr.validity)),
+            _buildDetailRow('Precio', "\$${qr.price}"),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(8.0),
@@ -86,7 +64,7 @@ class QrDetailScreen extends StatelessWidget {
                 ],
               ),
               child: QrImage(
-                data: qrData['id'] ?? "QR no disponible",
+                data: qr.id,
                 version: QrVersions.auto,
                 size: 200.0,
                 backgroundColor: Colors.white,

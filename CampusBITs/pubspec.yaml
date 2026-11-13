@@ -19,11 +19,11 @@ dependencies:
   qr_flutter: ^4.0.0
   sembast: ^3.2.1
   sembast_web: ^2.4.0+4
-  sqflite_common_ffi: ^2.0.1 # Soporte para web y escritorio
   qr: ^2.1.0
 
 
 dev_dependencies:
+  sqflite_common_ffi: ^2.0.1 # Solo para los tests (SQLite en memoria en el PC)
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1 # Lints para mantener el código limpio y consistente

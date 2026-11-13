@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'qr_detail_screen.dart';
-import 'db_helper.dart';
+import 'data/db_helper.dart';
 import 'package:uuid/uuid.dart';
 
 class GenerateQRCodeScreen extends StatefulWidget {
@@ -19,8 +19,7 @@ class GenerateQRCodeScreen extends StatefulWidget {
 }
 
 class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
-  final DBHelper _dbHelper = DBHelper();
-  List<Map<String, dynamic>> _qrList = [];
+  List<GeneratedQr> _qrList = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -33,27 +32,30 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
   Future<void> _generateAndLoadQrData() async {
     const uuid = Uuid();
     try {
+      final db = await DBHelper.database;
       if (widget.purchasedItems.isNotEmpty) {
-        for (var item in widget.purchasedItems) {
-          final qrData = {
-            'id': uuid.v4(),
-            'menuType': item['name'] ?? 'Sin nombre',
-            'price': item['price'] ?? 0,
-            'username': widget.username,
-            'pickupPoint': widget.pickupPoint,
-            'validity': DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
-          };
-
-          await _dbHelper.insertGeneratedQr(qrData);
-        }
+        final validity = DateTime.now().add(const Duration(hours: 24));
+        await db.insertQrCodes([
+          for (final item in widget.purchasedItems)
+            GeneratedQr(
+              id: uuid.v4(),
+              menuType: item['name'] ?? 'Sin nombre',
+              price: item['price'] ?? 0,
+              username: widget.username,
+              pickupPoint: widget.pickupPoint,
+              validity: validity,
+            ),
+        ]);
       }
 
-      final data = await _dbHelper.getQrForUser(widget.username);
+      final data = await db.getQrCodesForUser(widget.username);
+      if (!mounted) return;
       setState(() {
         _qrList = data;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error al generar los QR: $e';
         isLoading = false;
@@ -61,11 +63,11 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
     }
   }
 
-  void _showQrDetails(Map<String, dynamic> qrData) {
+  void _showQrDetails(GeneratedQr qr) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => QrDetailScreen(qrData: qrData),
+        builder: (context) => QrDetailScreen(qr: qr),
       ),
     );
   }
@@ -73,9 +75,11 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
   // Nueva funcionalidad para eliminar QR generado
   Future<void> _deleteQr(String qrId) async {
     try {
-      await _dbHelper.deleteQrById(qrId); // Se asume que el DBHelper tiene esta funcionalidad
+      final db = await DBHelper.database;
+      await db.deleteQrCode(qrId);
       _generateAndLoadQrData(); // Refresca la lista después de eliminar
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error al eliminar QR: $e';
       });
@@ -133,7 +137,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
           itemBuilder: (context, index) {
             final qr = _qrList[index];
             return GestureDetector(
-              onLongPress: () => _deleteQr(qr['id']), // Permite eliminar QR con presión larga
+              onLongPress: () => _deleteQr(qr.id), // Permite eliminar QR con presión larga
               onTap: () => _showQrDetails(qr),
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -144,7 +148,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Menú: ${qr['menuType']}',
+                        'Menú: ${qr.menuType}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -154,7 +158,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Usuario: ${qr['username']}',
+                        'Usuario: ${qr.username}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
@@ -162,7 +166,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                         ),
                       ),
                       Text(
-                        'Punto de Retiro: ${qr['pickupPoint']}',
+                        'Punto de Retiro: ${qr.pickupPoint}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
@@ -170,7 +174,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                         ),
                       ),
                       Text(
-                        'Validez hasta: ${DateTime.parse(qr['validity']).toLocal()}',
+                        'Validez hasta: ${qr.validity.toLocal()}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,

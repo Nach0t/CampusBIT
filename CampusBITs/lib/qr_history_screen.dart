@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'db_helper.dart';
+import 'data/db_helper.dart';
 
 class QrHistoryScreen extends StatefulWidget {
   final String username; // Usuario actual
@@ -12,7 +12,7 @@ class QrHistoryScreen extends StatefulWidget {
 }
 
 class _QrHistoryScreenState extends State<QrHistoryScreen> {
-  List<Map<String, dynamic>> qrHistory = [];
+  List<GeneratedQr> qrHistory = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -24,13 +24,15 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
 
   Future<void> _loadQrHistory() async {
     try {
-      final dbHelper = DBHelper.instance;
-      final data = await dbHelper.getQrForUser(widget.username);
+      final db = await DBHelper.database;
+      final data = await db.getQrCodesForUser(widget.username);
+      if (!mounted) return;
       setState(() {
         qrHistory = data;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error al cargar el historial de QR: $e';
         isLoading = false;
@@ -41,10 +43,11 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
   // Nueva funcionalidad: Eliminar un QR del historial
   Future<void> _deleteQr(String qrId) async {
     try {
-      final dbHelper = DBHelper.instance;
-      await dbHelper.deleteQrById(qrId); // Asumiendo que este método existe en DBHelper
+      final db = await DBHelper.database;
+      await db.deleteQrCode(qrId);
       _loadQrHistory(); // Recargar historial después de eliminar
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error al eliminar el QR: $e';
       });
@@ -82,16 +85,16 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
             margin: const EdgeInsets.all(8.0),
             child: ListTile(
               title: Text(
-                'Menú: ${qrData['menuType']}',
+                'Menú: ${qrData.menuType}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Precio: \$${qrData['price']}'),
-                  Text('Punto de Retiro: ${qrData['pickupPoint']}'),
+                  Text('Precio: \$${qrData.price}'),
+                  Text('Punto de Retiro: ${qrData.pickupPoint}'),
                   Text(
-                    'Validez: ${DateTime.parse(qrData['validity']).toLocal()}',
+                    'Validez: ${qrData.validity.toLocal()}',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
@@ -103,14 +106,14 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      _deleteQr(qrData['id']);
+                      _deleteQr(qrData.id);
                     },
                   ),
                   // Vista de QR
                   SizedBox(
                     width: 80,
                     child: QrImage(
-                      data: qrData['id'],
+                      data: qrData.id,
                       version: QrVersions.auto,
                       size: 50,
                       backgroundColor: Colors.white,
