@@ -1,122 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
 import 'data/models.dart';
+import 'ui/app_theme.dart';
+import 'ui/widgets.dart';
 
 class QrDetailScreen extends StatelessWidget {
   final GeneratedQr qr;
 
   const QrDetailScreen({super.key, required this.qr});
 
-  String formatValidity(DateTime validity) {
-    final d = validity.toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return "${d.day}/${d.month}/${d.year} ${two(d.hour)}:${two(d.minute)}";
-  }
-
   @override
   Widget build(BuildContext context) {
+    final expired = qr.isExpired;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Detalles del QR',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color(0xFF87CEEB), // Celeste agua
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      appBar: AppBar(title: const Text('Detalles del QR')),
+      body: AppBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ContentWidth(
+            maxWidth: 480,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      qr.menuType,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.texto,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      expired
+                          ? 'Este código está vencido'
+                          : 'Muestra este código al retirar tu pedido',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: expired
+                            ? AppColors.error
+                            : AppColors.textoSecundario,
+                        fontWeight: expired ? FontWeight.bold : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Opacity(
+                        opacity: expired ? 0.4 : 1,
+                        child: QrImage(
+                          data: qr.id,
+                          version: QrVersions.auto,
+                          size: 240,
+                          backgroundColor: Colors.white,
+                          semanticsLabel: 'Código QR de ${qr.menuType}',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    _buildDetailRow(Icons.person_outline, 'Usuario', qr.username),
+                    _buildDetailRow(
+                        Icons.storefront, 'Punto de Retiro', qr.pickupPoint),
+                    _buildDetailRow(
+                      Icons.schedule,
+                      'Validez',
+                      formatDateTime(qr.validity),
+                    ),
+                    _buildDetailRow(
+                      Icons.payments_outlined,
+                      'Precio',
+                      qr.price == 0 ? 'Canje con puntos' : formatPrice(qr.price),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Regresar'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              'Detalles del QR',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildDetailRow('Menú', qr.menuType),
-            _buildDetailRow('Usuario', qr.username),
-            _buildDetailRow('Punto de Retiro', qr.pickupPoint),
-            _buildDetailRow('Validez', formatValidity(qr.validity)),
-            _buildDetailRow('Precio', "\$${qr.price}"),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10.0,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: QrImage(
-                data: qr.id,
-                version: QrVersions.auto,
-                size: 200.0,
-                backgroundColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF87CEEB), // Botón celeste agua
-                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              child: const Text(
-                'Regresar',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '$label:',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          Icon(icon, size: 20, color: AppColors.celesteOscuro),
+          const SizedBox(width: 8),
           Flexible(
             child: Text(
-              value,
+              '$label:',
               style: const TextStyle(
-                fontSize: 18,
-                color: Colors.white70,
+                fontWeight: FontWeight.bold,
+                color: AppColors.texto,
               ),
-              overflow: TextOverflow.ellipsis, // Agrega puntos suspensivos si el texto es muy largo
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.textoSecundario),
             ),
           ),
         ],

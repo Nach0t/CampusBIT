@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+
+import 'map_screen.dart';
 import 'punto_retiro_screen.dart';
-import 'wait_time_utils.dart'; // Importamos la lógica del tiempo de espera
-import 'map_screen.dart'; // Importamos la pantalla del mapa
+import 'ui/app_theme.dart';
+import 'ui/widgets.dart';
+import 'wait_time_utils.dart';
+
+/// Locales donde se puede retirar un pedido.
+const List<String> locales = [
+  'Punto Casino',
+  'Punto Verde Casino',
+  'Punto Hall',
+  'Punto Estacionamiento',
+  'Punto Carpa',
+  'Faculty',
+  'Punto Domo',
+  'Punto Hospital',
+];
 
 class LocalesScreen extends StatelessWidget {
   final String username;
@@ -10,44 +25,14 @@ class LocalesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lista de locales
-    final locales = [
-      {'name': 'Punto Casino', 'description': ''},
-      {'name': 'Punto Verde Casino', 'description': ''},
-      {'name': 'Punto Hall', 'description': ''},
-      {'name': 'Punto Estacionamiento', 'description': ''},
-      {'name': 'Punto Carpa', 'description': ''},
-      {'name': 'Faculty', 'description': ''},
-      {'name': 'Punto Domo', 'description': ''},
-      {'name': 'Punto Hospital', 'description': ''},
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Locales',
-          style: TextStyle(
-            fontFamily: 'Exo2',
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
-        centerTitle: true,
-        elevation: 5.0,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
+      appBar: AppBar(title: const Text('Locales')),
+      body: AppBackground(
+        child: ContentWidth(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              OutlinedButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -56,112 +41,94 @@ class LocalesScreen extends StatelessWidget {
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4682B4),
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
                 ),
-                child: const Text(
-                  'Ir al Mapa',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                icon: const Icon(Icons.map_outlined),
+                label: const Text('Ir al Mapa'),
+              ),
+              const SizedBox(height: 8),
+              const SectionTitle('Elige dónde retirar tu pedido'),
+              for (final local in locales)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _LocalCard(username: username, localName: local),
                 ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: locales.length,
-                itemBuilder: (context, index) {
-                  final local = locales[index];
-                  return _buildLocalCard(
-                    context,
-                    local['name']!,
-                    local['description']!,
-                    username,
-                    calcularTiempoEspera(local['name']!),
-                  );
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildLocalCard(
-      BuildContext context,
-      String localName,
-      String description,
-      String username,
-      String tiempoEspera,
-      ) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PuntoRetiroScreen(username: username, localName: localName),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10.0,
-              offset: Offset(0, 4),
+class _LocalCard extends StatelessWidget {
+  final String username;
+  final String localName;
+
+  const _LocalCard({required this.username, required this.localName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  PuntoRetiroScreen(username: username, localName: localName),
             ),
-          ],
-        ),
+          );
+        },
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              localName,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4682B4),
-                fontFamily: 'Exo2',
-              ),
+            Image.asset(
+              'assets/AECafeteria.png',
+              height: 160,
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              style: const TextStyle(color: Colors.black87, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.black, // Fondo negro detrás de la imagen
-                borderRadius: BorderRadius.circular(12.0),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.celesteOscuro,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule,
+                                size: 18, color: AppColors.textoSecundario),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                'Tiempo de espera: '
+                                '${calcularTiempoEspera(localName)}',
+                                style: const TextStyle(
+                                    color: AppColors.textoSecundario),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right,
+                      color: AppColors.celesteOscuro),
+                ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0), // Borde redondeado para la imagen
-                child: Image.asset(
-                  'assets/AECafeteria.png', // Imagen fija o personalizada
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Tiempo de espera: $tiempoEspera',
-              style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
             ),
           ],
         ),

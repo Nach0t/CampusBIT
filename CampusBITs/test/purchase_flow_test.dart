@@ -7,21 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sembast/sembast_memory.dart';
 
-/// Los widget tests corren con un reloj simulado; la base en memoria usa
-/// async real, así que sus operaciones se ejecutan dentro de `runAsync`.
-Future<T> real<T>(WidgetTester tester, Future<T> Function() action) async {
-  return (await tester.runAsync(action)) as T;
-}
-
-/// Deja que terminen las operaciones de base pendientes y redibuja.
-Future<void> settle(WidgetTester tester) async {
-  for (var i = 0; i < 5; i++) {
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)));
-    await tester.pump();
-  }
-  await tester.pumpAndSettle();
-}
+import 'test_helpers.dart';
 
 void main() {
   late AppDatabase db;
@@ -59,21 +45,23 @@ void main() {
     );
     await pumpMenu(tester);
 
-    expect(find.text('Completo italiano - \$2200'), findsOneWidget);
-    expect(find.text('Promo desayuno - \$1800'), findsOneWidget);
+    expect(find.text('Completo italiano'), findsOneWidget);
+    expect(find.text('\$2.200'), findsOneWidget);
+    expect(find.text('Promo desayuno'), findsOneWidget);
 
     // Un cambio de administración se refleja al volver a abrir el menú.
     await real(
       tester,
       () => db.updateMenuItem(const MenuItem(
         name: 'Completo XL',
-        price: 2500,
+        price: 2590,
         category: MenuCategory.promo,
       ).copyWith(id: id)),
     );
     await pumpMenu(tester);
-    expect(find.text('Completo XL - \$2500'), findsOneWidget);
-    expect(find.text('Completo italiano - \$2200'), findsNothing);
+    expect(find.text('Completo XL'), findsOneWidget);
+    expect(find.text('\$2.590'), findsOneWidget);
+    expect(find.text('Completo italiano'), findsNothing);
   });
 
   testWidgets('comprar, ver los QR y eliminar uno sin generar nuevos',
@@ -89,12 +77,12 @@ void main() {
     await tester.tap(find.text('Ir al Carrito'));
     await tester.pumpAndSettle();
     expect(find.byType(CartScreen), findsOneWidget);
-    expect(find.text('Total: \$3600'), findsOneWidget);
+    expect(find.text('Total: \$3.600'), findsOneWidget);
 
     // Cantidades: +1 => 3 unidades.
     await tester.tap(find.byTooltip('Agregar uno'));
     await tester.pump();
-    expect(find.text('Total: \$5400'), findsOneWidget);
+    expect(find.text('Total: \$5.400'), findsOneWidget);
     expect(find.textContaining('Ganarás 50 puntos'), findsOneWidget);
 
     // Sin método de pago no se compra.
@@ -117,7 +105,7 @@ void main() {
 
     // Pantalla de QR con los 3 códigos de la compra.
     expect(find.byType(QrCodesScreen), findsOneWidget);
-    expect(find.textContaining('¡Compra realizada por \$5400!'), findsOneWidget);
+    expect(find.textContaining('¡Compra realizada por \$5.400!'), findsOneWidget);
     expect(find.text('Menú: Promo desayuno'), findsNWidgets(3));
     expect(await real(tester, () => db.getQrCodesForUser('ana')), hasLength(3));
     expect(await real(tester, () => db.getUserPoints('ana')), 50);

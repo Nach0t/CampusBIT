@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'data/db_helper.dart';
 import 'logic/checkout.dart';
+import 'ui/app_theme.dart';
+import 'ui/widgets.dart';
 
 class PointsScreen extends StatefulWidget {
   final String username;
@@ -48,26 +50,14 @@ class _PointsScreenState extends State<PointsScreen> {
   }
 
   Future<void> _redeem(Reward reward) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar canje'),
-        content: Text(
-            '¿Canjear "${reward.name}" por ${reward.cost} puntos?\n'
-            'Recibirás un código QR para retirarlo en $rewardPickupPoint.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Canjear'),
-          ),
-        ],
-      ),
+    final confirmed = await confirmAction(
+      context,
+      title: 'Confirmar canje',
+      message: '¿Canjear "${reward.name}" por ${reward.cost} puntos?\n'
+          'Recibirás un código QR para retirarlo en $rewardPickupPoint.',
+      confirmLabel: 'Canjear',
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     setState(() => _redeeming = true);
     try {
@@ -79,31 +69,23 @@ class _PointsScreenState extends State<PointsScreen> {
       );
       await _loadPoints();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        qr != null
-            ? SnackBar(
-                content: Text(
-                  '¡Has canjeado: ${reward.name}! Tu QR está en la pestaña QR.',
-                  style: const TextStyle(fontFamily: 'Exo2'),
-                ),
-                backgroundColor: Colors.green,
-              )
-            : const SnackBar(
-                content: Text(
-                  'No tienes suficientes puntos para canjear este artículo',
-                  style: TextStyle(fontFamily: 'Exo2'),
-                ),
-                backgroundColor: Colors.redAccent,
-              ),
-      );
+      if (qr != null) {
+        showAppMessage(
+          context,
+          '¡Has canjeado: ${reward.name}! Tu QR está en la pestaña QR.',
+          type: MessageType.success,
+        );
+      } else {
+        showAppMessage(
+          context,
+          'No tienes suficientes puntos para canjear este artículo',
+          type: MessageType.error,
+        );
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No se pudo realizar el canje: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      showAppMessage(context, 'No se pudo realizar el canje: $e',
+          type: MessageType.error);
     } finally {
       if (mounted) setState(() => _redeeming = false);
     }
@@ -112,62 +94,46 @@ class _PointsScreenState extends State<PointsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Canjea tus Puntos',
-          style: TextStyle(
-            fontFamily: 'Exo2',
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF4682B4),
-        centerTitle: true,
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      appBar: AppBar(title: const Text('Canjea tus Puntos')),
+      body: AppBackground(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const LoadingView()
             : _errorMessage.isNotEmpty
-                ? Center(
-                    child: Text(
-                      _errorMessage,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.red, fontSize: 18),
-                    ),
+                ? MessageView.error(
+                    message: _errorMessage,
+                    onAction: () {
+                      setState(() => _isLoading = true);
+                      _loadPoints();
+                    },
                   )
                 : RefreshIndicator(
                     onRefresh: _loadPoints,
-                    child: ListView(
-                      padding: const EdgeInsets.all(16.0),
-                      children: [
-                        _buildBalance(),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Ganas 10 puntos por cada \$1.000 en compras.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildTitle('Opciones de Canje:'),
-                        for (final reward in rewards) _buildRedeemOption(reward),
-                        const SizedBox(height: 24),
-                        _buildTitle('Historial de movimientos:'),
-                        if (_history.isEmpty)
-                          const Text(
-                            'Aún no tienes movimientos.',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        for (final tx in _history) _buildHistoryItem(tx),
-                      ],
+                    child: ContentWidth(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          _buildBalance(),
+                          const SizedBox(height: 8),
+                          const SectionTitle('Opciones de Canje'),
+                          for (final reward in rewards)
+                            _buildRedeemOption(reward),
+                          const SizedBox(height: 8),
+                          const SectionTitle('Historial de movimientos'),
+                          if (_history.isEmpty)
+                            const Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Text(
+                                  'Aún no tienes movimientos. '
+                                  'Tus compras y canjes aparecerán aquí.',
+                                  style: TextStyle(
+                                      color: AppColors.textoSecundario),
+                                ),
+                              ),
+                            ),
+                          for (final tx in _history) _buildHistoryItem(tx),
+                        ],
+                      ),
                     ),
                   ),
       ),
@@ -175,42 +141,31 @@ class _PointsScreenState extends State<PointsScreen> {
   }
 
   Widget _buildBalance() {
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 5.0,
-              offset: Offset(0, 4),
+    return Card(
+      color: AppColors.celesteOscuro,
+      elevation: 6,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        child: Column(
+          children: [
+            const Icon(Icons.stars_rounded, color: Colors.white, size: 40),
+            const SizedBox(height: 8),
+            Text(
+              'Puntos Totales: $totalPoints',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Ganas 10 puntos por cada \$1.000 en compras.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
             ),
           ],
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Puntos Totales: $totalPoints',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
         ),
       ),
     );
@@ -219,48 +174,62 @@ class _PointsScreenState extends State<PointsScreen> {
   /// Constructor de las opciones de canje
   Widget _buildRedeemOption(Reward reward) {
     final canAfford = totalPoints >= reward.cost;
+    final progress = (totalPoints / reward.cost).clamp(0.0, 1.0);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10.0,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ListTile(
-          title: Text(
-            reward.name,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          subtitle: Text(
-            canAfford
-                ? 'Costo: ${reward.cost} puntos'
-                : 'Costo: ${reward.cost} puntos · te faltan '
-                    '${reward.cost - totalPoints}',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          trailing: canAfford
-              ? ElevatedButton(
-                  onPressed: _redeeming ? null : () => _redeem(reward),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4682B4),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          reward.name,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.texto,
+                          ),
+                        ),
+                        Text(
+                          canAfford
+                              ? 'Costo: ${reward.cost} puntos'
+                              : 'Costo: ${reward.cost} puntos · te faltan '
+                                  '${reward.cost - totalPoints}',
+                          style:
+                              const TextStyle(color: AppColors.textoSecundario),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: const Text('Canjear',
-                      style: TextStyle(color: Colors.white)),
-                )
-              : const Text(
-                  'No suficientes\npuntos',
-                  textAlign: TextAlign.center,
-                  style:
-                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: canAfford && !_redeeming
+                        ? () => _redeem(reward)
+                        : null,
+                    child: const Text('Canjear'),
+                  ),
+                ],
+              ),
+              if (!canAfford) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: AppColors.celesteAgua,
+                  ),
                 ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -268,32 +237,33 @@ class _PointsScreenState extends State<PointsScreen> {
 
   Widget _buildHistoryItem(PointsTransaction tx) {
     final positive = tx.points >= 0;
-    final d = tx.timestamp.toLocal();
-    final date = '${d.day}/${d.month}/${d.year}';
-    return Card(
-      color: Colors.white.withValues(alpha: 0.15),
-      elevation: 0,
-      child: ListTile(
-        leading: Icon(
-          tx.type == TransactionType.purchase
-              ? Icons.shopping_bag
-              : Icons.card_giftcard,
-          color: Colors.white,
-        ),
-        title: Text(tx.description,
-            style: const TextStyle(color: Colors.white)),
-        subtitle: Text(
-          tx.type == TransactionType.purchase
-              ? '$date · Compra de \$${tx.amount}'
-              : '$date · Canje',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        trailing: Text(
-          '${positive ? '+' : ''}${tx.points}',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: positive ? Colors.green.shade800 : Colors.red.shade700,
+    final isPurchase = tx.type == TransactionType.purchase;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        elevation: 1,
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: AppColors.celesteAgua,
+            child: Icon(
+              isPurchase ? Icons.shopping_bag : Icons.card_giftcard,
+              color: AppColors.celesteOscuro,
+            ),
+          ),
+          title: Text(tx.description),
+          subtitle: Text(
+            isPurchase
+                ? '${formatDateTime(tx.timestamp)} · '
+                    'Compra de ${formatPrice(tx.amount)}'
+                : '${formatDateTime(tx.timestamp)} · Canje',
+          ),
+          trailing: Text(
+            '${positive ? '+' : ''}${tx.points}',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: positive ? AppColors.exito : AppColors.error,
+            ),
           ),
         ),
       ),

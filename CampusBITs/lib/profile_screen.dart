@@ -1,166 +1,155 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart'; // Asegúrate de importar la pantalla de login correctamente
+
+import 'login_screen.dart';
+import 'qr_codes_screen.dart';
+import 'ui/app_theme.dart';
+import 'ui/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
   final String username;
 
   const ProfileScreen({super.key, required this.username});
 
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await confirmAction(
+      context,
+      title: 'Cerrar sesión',
+      message: '¿Quieres salir de tu cuenta?',
+      confirmLabel: 'Cerrar sesión',
+    );
+    if (!confirmed || !context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false, // Elimina el historial
+    );
+  }
+
+  void _comingSoon(BuildContext context, String feature) {
+    // Antes decía "Navegando a..." sin navegar a ninguna parte.
+    showAppMessage(context, '$feature estará disponible próximamente.');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Mi Perfil',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo con gradiente
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          children: [
-            // Encabezado destacado
-            Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2), // Fondo translúcido
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10.0,
-                    offset: Offset(0, 4),
+      appBar: AppBar(title: const Text('Mi Perfil')),
+      body: AppBackground(
+        child: ContentWidth(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      const CircleAvatar(
+                        radius: 48,
+                        backgroundColor: AppColors.celesteOscuro,
+                        child:
+                            Icon(Icons.person, size: 56, color: Colors.white),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        username,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.texto,
+                        ),
+                      ),
+                      const Text(
+                        'Universidad San Sebastián',
+                        style: TextStyle(color: AppColors.textoSecundario),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 60,
-                    // La imagen 'profile_placeholder.png' no existía en assets/
-                    backgroundColor: Color(0xFF4682B4),
-                    child: Icon(Icons.person, size: 64, color: Colors.white),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    username,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Opciones del menú
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: [
-                  _buildProfileOption(
-                    icon: Icons.payment,
-                    title: 'Métodos de Pago',
-                    onTap: () {
-                      // Acción para Métodos de Pago
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Navegando a Métodos de Pago...')),
-                      );
-                    },
-                  ),
-                  _buildProfileOption(
-                    icon: Icons.history,
-                    title: 'Historial de Pedidos',
-                    onTap: () {
-                      // Acción para Historial de Pedidos
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Navegando a Historial de Pedidos...')),
-                      );
-                    },
-                  ),
-                  _buildProfileOption(
-                    icon: Icons.settings,
-                    title: 'Configuraciones',
-                    onTap: () {
-                      // Acción para Configuraciones
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Navegando a Configuraciones...')),
-                      );
-                    },
-                  ),
-                  _buildProfileOption(
-                    icon: Icons.logout,
-                    title: 'Cerrar Sesión',
-                    onTap: () {
-                      // Navegar a la pantalla de login
-                      Navigator.pushAndRemoveUntil(
+              const SizedBox(height: 16),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    _ProfileOption(
+                      icon: Icons.history,
+                      title: 'Historial de Pedidos',
+                      onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                          builder: (context) =>
+                              QrCodesScreen(username: username),
                         ),
-                            (Route<dynamic> route) => false, // Elimina el historial
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    _ProfileOption(
+                      icon: Icons.payment,
+                      title: 'Métodos de Pago',
+                      onTap: () => _comingSoon(context, 'Métodos de Pago'),
+                    ),
+                    const Divider(height: 1),
+                    _ProfileOption(
+                      icon: Icons.settings,
+                      title: 'Configuraciones',
+                      onTap: () => _comingSoon(context, 'Configuraciones'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: _ProfileOption(
+                  icon: Icons.logout,
+                  title: 'Cerrar Sesión',
+                  color: AppColors.error,
+                  showChevron: false,
+                  onTap: () => _logout(context),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildProfileOption({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16.0),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2), // Fondo translúcido
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 5.0,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.white, size: 30),
-              const SizedBox(width: 16),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const Spacer(),
-              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
-            ],
-          ),
+class _ProfileOption extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final Color color;
+  final bool showChevron;
+
+  const _ProfileOption({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.color = AppColors.celesteOscuro,
+    this.showChevron = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Icon(icon, color: color, size: 28),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: color == AppColors.celesteOscuro ? AppColors.texto : color,
         ),
       ),
+      trailing: showChevron
+          ? const Icon(Icons.chevron_right, color: AppColors.textoSecundario)
+          : null,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'locales_screen.dart';
 import 'points_screen.dart';
 import 'qr_codes_screen.dart';
 import 'profile_screen.dart';
+import 'ui/app_theme.dart';
 
 class MainScreen extends StatefulWidget {
   final String username;
@@ -39,10 +40,7 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: const Color(0xFF4682B4), // **Celeste oscuro** seleccionado
-        unselectedItemColor: Colors.grey, // **Gris** para no seleccionados
-        backgroundColor: const Color(0xFFB0E0E6), // **Celeste agua** para el fondo de la barra
-        type: BottomNavigationBarType.fixed, // Mantener el diseño fijo
+        backgroundColor: AppColors.celesteAgua, // Colores y tipo: tema global
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.store),

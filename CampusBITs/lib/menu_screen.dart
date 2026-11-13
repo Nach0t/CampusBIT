@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'cart_screen.dart';
 import 'data/db_helper.dart';
 import 'logic/cart.dart';
+import 'ui/app_theme.dart';
+import 'ui/widgets.dart';
 
 class MenuScreen extends StatefulWidget {
   final String username;
@@ -37,18 +39,15 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   /// El catálogo viene siempre de la base de datos, así los cambios del
-  /// administrador se ven al abrir el menú.
+  /// administrador se ven al abrir el menú (o al deslizar para recargar).
   Future<void> _loadMenu() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
     try {
       final db = await DBHelper.database;
       final items = await db.getMenuItems();
       if (!mounted) return;
       setState(() {
         menuItems = items;
+        errorMessage = '';
         isLoading = false;
       });
     } catch (e) {
@@ -60,16 +59,19 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  void _retry() {
+    setState(() => isLoading = true);
+    _loadMenu();
+  }
+
   void _addToCart(MenuItem item) {
     _cart.add(item);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('${item.name} agregado al carrito'),
-          duration: const Duration(seconds: 1),
-        ),
-      );
+    showAppMessage(
+      context,
+      '${item.name} agregado al carrito',
+      type: MessageType.success,
+      duration: const Duration(seconds: 1),
+    );
   }
 
   @override
@@ -80,275 +82,237 @@ class _MenuScreenState extends State<MenuScreen> {
         menuItems.where((m) => m.category == MenuCategory.almuerzo).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Menú de Compra',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF4682B4),
-        elevation: 5.0,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      appBar: AppBar(title: const Text('Menú de Compra')),
+      body: AppBackground(
         child: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const LoadingView(message: 'Cargando menú...')
             : errorMessage.isNotEmpty
-                ? _buildError()
-                : Column(
-                    children: [
-                      Expanded(
-                        child: RefreshIndicator(
-                          onRefresh: _loadMenu,
-                          child: ListView(
-                            padding: const EdgeInsets.all(16.0),
-                            children: [
-                              if (menuItems.isEmpty)
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 48),
-                                  child: Text(
-                                    'No hay productos disponibles.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  ),
-                                ),
-                              if (promos.isNotEmpty) ...[
-                                _buildSectionTitle('Promoción Semanal:'),
-                                for (final item in promos) _buildMenuCard(item),
-                                const SizedBox(height: 16),
-                              ],
-                              if (almuerzos.isNotEmpty) ...[
-                                _buildSectionTitle('Almuerzos Disponibles:'),
-                                for (final item in almuerzos)
-                                  _buildMenuCard(item),
-                              ],
-                            ],
-                          ),
-                        ),
+                ? MessageView.error(message: errorMessage, onAction: _retry)
+                : RefreshIndicator(
+                    onRefresh: _loadMenu,
+                    child: ContentWidth(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          _PickupBanner(pickupPoint: widget.pickupPoint),
+                          if (menuItems.isEmpty)
+                            const MessageView(
+                              icon: Icons.no_food_outlined,
+                              message: 'No hay productos disponibles.',
+                            ),
+                          if (promos.isNotEmpty) ...[
+                            const SectionTitle('Promoción Semanal'),
+                            for (final item in promos) _buildMenuCard(item),
+                          ],
+                          if (almuerzos.isNotEmpty) ...[
+                            const SectionTitle('Almuerzos Disponibles'),
+                            for (final item in almuerzos)
+                              _buildMenuCard(item),
+                          ],
+                        ],
                       ),
-                      _buildCartButton(),
-                    ],
+                    ),
                   ),
       ),
-    );
-  }
-
-  Widget _buildError() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              errorMessage,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red, fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadMenu,
-              child: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
+      bottomNavigationBar: isLoading || errorMessage.isNotEmpty
+          ? null
+          : _buildCartBar(),
     );
   }
 
   Widget _buildMenuCard(MenuItem item) {
-    return Card(
-      color: Colors.white.withValues(alpha: 0.1),
-      elevation: 3,
-      margin: const EdgeInsets.only(bottom: 16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              '${item.name} - \$${item.price}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 150,
-            child: item.images.isNotEmpty
-                ? ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: item.images.map((path) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.asset(
-                            path,
-                            fit: BoxFit.cover,
-                            width: 120,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const SizedBox(
-                              width: 120,
-                              child: Icon(Icons.image_not_supported,
-                                  color: Colors.white70, size: 48),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  )
-                : const Center(
-                    child: Icon(Icons.restaurant,
-                        color: Colors.white70, size: 64),
-                  ),
-          ),
-          if (item.description.isNotEmpty)
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Text(
-                item.description,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => _addToCart(item),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4682B4),
-                    elevation: 3.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.texto,
+                      ),
                     ),
                   ),
-                  child: const Text('Añadir',
-                      style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 12),
-                ListenableBuilder(
-                  listenable: _cart,
-                  builder: (context, _) {
-                    final qty = _cart.quantityOf(item);
-                    return qty == 0
-                        ? const SizedBox.shrink()
-                        : Text(
-                            '$qty en el carrito',
-                            style: const TextStyle(color: Colors.white),
-                          );
-                  },
+                  const SizedBox(width: 8),
+                  Text(
+                    formatPrice(item.price),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.celesteOscuro,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 110,
+                child: item.images.isNotEmpty
+                    ? ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: item.images.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, i) => AssetImageBox(
+                          item.images[i],
+                          width: 110,
+                          height: 110,
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.celesteAgua,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.restaurant,
+                              color: AppColors.celesteOscuro, size: 48),
+                        ),
+                      ),
+              ),
+              if (item.description.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  item.description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textoSecundario,
+                  ),
                 ),
               ],
-            ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _addToCart(item),
+                    icon: const Icon(Icons.add_shopping_cart, size: 20),
+                    label: const Text('Añadir'),
+                  ),
+                  const SizedBox(width: 12),
+                  ListenableBuilder(
+                    listenable: _cart,
+                    builder: (context, _) {
+                      final qty = _cart.quantityOf(item);
+                      return qty == 0
+                          ? const SizedBox.shrink()
+                          : Text(
+                              '$qty en el carrito',
+                              style: const TextStyle(
+                                color: AppColors.celesteOscuro,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildCartButton() {
+  Widget _buildCartBar() {
     return ListenableBuilder(
       listenable: _cart,
       builder: (context, _) {
         final hasItems = !_cart.isEmpty;
-        return Container(
-          color: Colors.grey[800],
-          padding: const EdgeInsets.all(16.0),
+        return Material(
+          color: AppColors.celesteOscuro,
+          elevation: 8,
           child: SafeArea(
             top: false,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shopping_cart, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'Carrito (${_cart.itemCount}) · \$${_cart.total}',
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Badge(
+                    isLabelVisible: hasItems,
+                    label: Text('${_cart.itemCount}'),
+                    child: const Icon(Icons.shopping_cart, color: Colors.white),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Carrito (${_cart.itemCount}) · '
+                      '${formatPrice(_cart.total)}',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: hasItems
-                      ? () {
-                          // El aviso "agregado al carrito" taparía el botón
-                          // "Pagar" de la pantalla siguiente.
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CartScreen(
-                                cart: _cart,
-                                username: widget.username,
-                                pickupPoint: widget.pickupPoint,
+                  ElevatedButton(
+                    onPressed: hasItems
+                        ? () {
+                            // El aviso "agregado al carrito" no debe quedar
+                            // encima de la pantalla siguiente.
+                            ScaffoldMessenger.of(context)
+                                .hideCurrentSnackBar();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CartScreen(
+                                  cart: _cart,
+                                  username: widget.username,
+                                  pickupPoint: widget.pickupPoint,
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        hasItems ? Colors.white : Colors.grey[600],
-                    elevation: 3.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+                            );
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.celesteOscuro,
                     ),
+                    child: const Text('Ir al Carrito'),
                   ),
-                  child: Text(
-                    'Ir al Carrito',
-                    style: TextStyle(
-                      color:
-                          hasItems ? const Color(0xFF4682B4) : Colors.grey,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _PickupBanner extends StatelessWidget {
+  final String pickupPoint;
+
+  const _PickupBanner({required this.pickupPoint});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.storefront, color: AppColors.texto),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Retiro en $pickupPoint',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.texto,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
