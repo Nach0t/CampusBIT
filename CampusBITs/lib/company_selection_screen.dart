@@ -67,7 +67,8 @@ class CompanySelectionScreen extends StatelessWidget {
                     // ignore: prefer_const_constructors
                     child: Column(
                       children: const [
-                        Icon(Icons.business, size: 72, color: AppColors.petroleo),
+                        Icon(Icons.business,
+                            size: 72, color: AppColors.petroleo),
                         SizedBox(height: 8),
                         Text(
                           'OTRO',

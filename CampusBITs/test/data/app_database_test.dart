@@ -102,7 +102,8 @@ void main() {
 
       final menu = await db.getMenuItems();
       expect(menu.map((m) => m.name), ['Promo desayuno', 'Agregado por admin']);
-      expect(menu.first.images, ['assets/PromoDesayuno.png', 'assets/Cafe.png']);
+      expect(
+          menu.first.images, ['assets/PromoDesayuno.png', 'assets/Cafe.png']);
       expect(menu.last.images, isEmpty);
       expect(menu.first.description, '');
       expect(menu.first.category, MenuCategory.promo);
@@ -222,7 +223,8 @@ void runContract(Opener open, String Function() newName) {
       expect(item.name, 'Completo');
       expect(item.images, ['assets/otros.png']);
 
-      await db.updateMenuItem(item.copyWith(name: 'Completo italiano', price: 2500));
+      await db.updateMenuItem(
+          item.copyWith(name: 'Completo italiano', price: 2500));
       item = (await db.getMenuItems()).firstWhere((m) => m.id == id);
       expect(item.name, 'Completo italiano');
       expect(item.price, 2500);
@@ -275,11 +277,13 @@ void runContract(Opener open, String Function() newName) {
 
     test('las compras suman puntos y quedan registradas', () async {
       expect(
-        await db.recordPurchase(username: 'ana', amount: 3500, pointsEarned: 30),
+        await db.recordPurchase(
+            username: 'ana', amount: 3500, pointsEarned: 30),
         30,
       );
       expect(
-        await db.recordPurchase(username: 'ana', amount: 2500, pointsEarned: 20),
+        await db.recordPurchase(
+            username: 'ana', amount: 2500, pointsEarned: 20),
         50,
       );
       expect(await db.getUserPoints('ana'), 50);
@@ -291,7 +295,8 @@ void runContract(Opener open, String Function() newName) {
     });
 
     test('el canje descuenta puntos y se registra', () async {
-      await db.recordPurchase(username: 'ana', amount: 10000, pointsEarned: 100);
+      await db.recordPurchase(
+          username: 'ana', amount: 10000, pointsEarned: 100);
 
       expect(await db.redeemPoints(username: 'ana', itemName: 'Café', cost: 60),
           isTrue);
@@ -306,7 +311,8 @@ void runContract(Opener open, String Function() newName) {
     test('sin saldo suficiente el canje no cambia nada', () async {
       await db.recordPurchase(username: 'ana', amount: 3000, pointsEarned: 30);
 
-      expect(await db.redeemPoints(username: 'ana', itemName: 'Combo', cost: 31),
+      expect(
+          await db.redeemPoints(username: 'ana', itemName: 'Combo', cost: 31),
           isFalse);
       expect(await db.getUserPoints('ana'), 30);
       expect(await db.getTransactions('ana'), hasLength(1));
@@ -337,8 +343,8 @@ void runContract(Opener open, String Function() newName) {
       );
       expect(await db.getUserPoints('ana'), 0);
       expect(await db.getTransactions('ana'), isEmpty);
-      expect((await db.getQrCodesForUser('ana')).map((q) => q.id),
-          ['repetido']);
+      expect(
+          (await db.getQrCodesForUser('ana')).map((q) => q.id), ['repetido']);
     });
 
     test('el canje guarda el QR del premio solo si alcanza el saldo', () async {
@@ -346,14 +352,20 @@ void runContract(Opener open, String Function() newName) {
 
       expect(
         await db.redeemPoints(
-            username: 'ana', itemName: 'Caro', cost: 100, qrCode: qr('no', 'ana')),
+            username: 'ana',
+            itemName: 'Caro',
+            cost: 100,
+            qrCode: qr('no', 'ana')),
         isFalse,
       );
       expect(await db.getQrCodesForUser('ana'), isEmpty);
 
       expect(
         await db.redeemPoints(
-            username: 'ana', itemName: 'Café', cost: 50, qrCode: qr('si', 'ana')),
+            username: 'ana',
+            itemName: 'Café',
+            cost: 50,
+            qrCode: qr('si', 'ana')),
         isTrue,
       );
       expect((await db.getQrCodesForUser('ana')).single.id, 'si');

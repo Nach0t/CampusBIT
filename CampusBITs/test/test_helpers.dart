@@ -9,8 +9,8 @@ Future<T> real<T>(WidgetTester tester, Future<T> Function() action) async {
 /// Deja que terminen las operaciones de base pendientes y redibuja.
 Future<void> settle(WidgetTester tester) async {
   for (var i = 0; i < 5; i++) {
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pump();
   }
   await tester.pumpAndSettle();

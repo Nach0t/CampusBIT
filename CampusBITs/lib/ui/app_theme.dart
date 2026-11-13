@@ -110,8 +110,7 @@ ThemeData buildAppTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide:
-            const BorderSide(color: AppColors.celesteOscuro, width: 2),
+        borderSide: const BorderSide(color: AppColors.celesteOscuro, width: 2),
       ),
     ),
     cardTheme: CardThemeData(
@@ -122,6 +121,10 @@ ThemeData buildAppTheme() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     dialogTheme: DialogThemeData(
+      // Blanco como las tarjetas (el lila por defecto de Material 3 no
+      // calzaba con la paleta).
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     snackBarTheme: SnackBarThemeData(

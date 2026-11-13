@@ -53,8 +53,9 @@ class _PointsScreenState extends State<PointsScreen> {
     final confirmed = await confirmAction(
       context,
       title: 'Confirmar canje',
-      message: '¿Canjear "${reward.name}" por ${reward.cost} puntos?\n'
-          'Recibirás un código QR para retirarlo en $rewardPickupPoint.',
+      message:
+          '¿Canjear "${reward.name}" por ${formatNumber(reward.cost)} puntos?\n'
+          'Recibirás un código QR para retirarlo en $pickupPointName.',
       confirmLabel: 'Canjear',
     );
     if (!confirmed || !mounted) return;
@@ -151,7 +152,7 @@ class _PointsScreenState extends State<PointsScreen> {
             const Icon(Icons.stars_rounded, color: Colors.white, size: 40),
             const SizedBox(height: 8),
             Text(
-              'Puntos Totales: $totalPoints',
+              'Puntos Totales: ${formatNumber(totalPoints)}',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 26,
@@ -199,9 +200,9 @@ class _PointsScreenState extends State<PointsScreen> {
                         ),
                         Text(
                           canAfford
-                              ? 'Costo: ${reward.cost} puntos'
-                              : 'Costo: ${reward.cost} puntos · te faltan '
-                                  '${reward.cost - totalPoints}',
+                              ? 'Costo: ${formatNumber(reward.cost)} puntos'
+                              : 'Costo: ${formatNumber(reward.cost)} puntos · te faltan '
+                                  '${formatNumber(reward.cost - totalPoints)}',
                           style:
                               const TextStyle(color: AppColors.textoSecundario),
                         ),
@@ -210,9 +211,8 @@ class _PointsScreenState extends State<PointsScreen> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: canAfford && !_redeeming
-                        ? () => _redeem(reward)
-                        : null,
+                    onPressed:
+                        canAfford && !_redeeming ? () => _redeem(reward) : null,
                     child: const Text('Canjear'),
                   ),
                 ],
@@ -258,7 +258,7 @@ class _PointsScreenState extends State<PointsScreen> {
                 : '${formatDateTime(tx.timestamp)} · Canje',
           ),
           trailing: Text(
-            '${positive ? '+' : ''}${tx.points}',
+            '${positive ? '+' : ''}${formatNumber(tx.points)}',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

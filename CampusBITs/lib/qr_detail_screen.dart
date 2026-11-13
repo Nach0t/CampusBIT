@@ -63,7 +63,8 @@ class QrDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     const Divider(),
-                    _buildDetailRow(Icons.person_outline, 'Usuario', qr.username),
+                    _buildDetailRow(
+                        Icons.person_outline, 'Usuario', qr.username),
                     _buildDetailRow(
                         Icons.storefront, 'Punto de Retiro', qr.pickupPoint),
                     _buildDetailRow(
@@ -74,7 +75,9 @@ class QrDetailScreen extends StatelessWidget {
                     _buildDetailRow(
                       Icons.payments_outlined,
                       'Precio',
-                      qr.price == 0 ? 'Canje con puntos' : formatPrice(qr.price),
+                      qr.price == 0
+                          ? 'Canje con puntos'
+                          : formatPrice(qr.price),
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton(
@@ -92,29 +95,35 @@ class QrDetailScreen extends StatelessWidget {
   }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
+    // Etiqueta pequeña sobre el valor: se lee mejor que dos columnas y no
+    // se parte en pantallas angostas (revisado en el emulador).
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.celesteOscuro),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              '$label:',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.texto,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
+          Icon(icon, size: 24, color: AppColors.celesteOscuro),
+          const SizedBox(width: 12),
           Expanded(
-            flex: 2,
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textoSecundario),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textoSecundario,
+                  ),
+                ),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.texto,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

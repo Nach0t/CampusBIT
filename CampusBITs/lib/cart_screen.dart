@@ -17,13 +17,15 @@ const _paymentOptions = [
 class CartScreen extends StatefulWidget {
   final Cart cart;
   final String username;
-  final String pickupPoint;
+
+  /// Local AE donde se hace el pedido (el retiro es siempre en la Cafetería).
+  final String localName;
 
   const CartScreen({
     super.key,
     required this.cart,
     required this.username,
-    required this.pickupPoint,
+    required this.localName,
   });
 
   @override
@@ -56,7 +58,7 @@ class _CartScreenState extends State<CartScreen> {
         db: db,
         cart: cart,
         username: widget.username,
-        pickupPoint: widget.pickupPoint,
+        localName: widget.localName,
       );
       // La compra ya quedó guardada: recién ahora se vacía el carrito.
       cart.clear();
@@ -204,7 +206,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Retiro en ${widget.pickupPoint} · Ganarás $points puntos',
+                  'Retiro en $pickupPointName · Ganarás $points puntos',
                   style: const TextStyle(color: Colors.white),
                   textAlign: TextAlign.center,
                 ),

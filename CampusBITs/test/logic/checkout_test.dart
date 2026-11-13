@@ -44,7 +44,7 @@ void main() {
         db: db,
         cart: cart,
         username: 'ana',
-        pickupPoint: 'Hall',
+        localName: 'Punto Hall',
         now: now,
         newId: fakeId,
       );
@@ -52,9 +52,11 @@ void main() {
       expect(result.codes, hasLength(3));
       expect(result.codes.map((q) => q.menuType),
           ['Almuerzo normal', 'Almuerzo normal', 'Promo desayuno']);
-      expect(result.codes.every((q) => q.pickupPoint == 'Hall'), isTrue);
-      expect(result.codes.every((q) => q.validity == now.add(qrValidity)),
-          isTrue);
+      // El retiro es siempre en la Cafetería, aunque se pida en otro local.
+      expect(
+          result.codes.every((q) => q.pickupPoint == pickupPointName), isTrue);
+      expect(
+          result.codes.every((q) => q.validity == now.add(qrValidity)), isTrue);
       expect(result.codes.map((q) => q.id).toSet(), hasLength(3));
 
       final saved = await db.getQrCodesForUser('ana');
@@ -68,7 +70,7 @@ void main() {
         ..add(promo); // 8.400 -> 80 puntos
 
       final result = await checkout(
-          db: db, cart: cart, username: 'ana', pickupPoint: 'Hall');
+          db: db, cart: cart, username: 'ana', localName: 'Punto Hall');
 
       expect(result.amount, 8400);
       expect(result.pointsEarned, 80);
@@ -81,15 +83,30 @@ void main() {
       expect(tx.points, 80);
     });
 
+    test('la descripción usa singular y plural', () async {
+      cart.add(almuerzo);
+      await checkout(
+          db: db, cart: cart, username: 'ana', localName: 'Punto Hall');
+      cart.add(promo);
+      await checkout(
+          db: db, cart: cart, username: 'ana', localName: 'Punto Hall');
+      final txs = await db.getTransactions('ana');
+      expect(txs.map((t) => t.description), [
+        'Compra en Punto Hall (2 productos)',
+        'Compra en Punto Hall (1 producto)'
+      ]);
+    });
+
     test('no vacía el carrito (lo hace la pantalla tras guardar)', () async {
       cart.add(almuerzo);
-      await checkout(db: db, cart: cart, username: 'ana', pickupPoint: 'Hall');
+      await checkout(
+          db: db, cart: cart, username: 'ana', localName: 'Punto Hall');
       expect(cart.itemCount, 1);
     });
 
     test('con el carrito vacío no guarda nada', () async {
       await expectLater(
-        checkout(db: db, cart: cart, username: 'ana', pickupPoint: 'Hall'),
+        checkout(db: db, cart: cart, username: 'ana', localName: 'Punto Hall'),
         throwsStateError,
       );
       expect(await db.getQrCodesForUser('ana'), isEmpty);
@@ -106,7 +123,7 @@ void main() {
           db: db,
           cart: cart,
           username: 'ana',
-          pickupPoint: 'Hall',
+          localName: 'Punto Hall',
           newId: () => 'mismo-id',
         ),
         throwsA(anything),
@@ -121,7 +138,8 @@ void main() {
     const reward = Reward('Menú Junaeb', 700);
 
     test('sin saldo suficiente no descuenta ni genera QR', () async {
-      await db.recordPurchase(username: 'ana', amount: 60000, pointsEarned: 600);
+      await db.recordPurchase(
+          username: 'ana', amount: 60000, pointsEarned: 600);
 
       final qr = await redeemReward(db: db, username: 'ana', reward: reward);
 
@@ -131,7 +149,8 @@ void main() {
     });
 
     test('con saldo descuenta, registra y entrega un QR sin costo', () async {
-      await db.recordPurchase(username: 'ana', amount: 80000, pointsEarned: 800);
+      await db.recordPurchase(
+          username: 'ana', amount: 80000, pointsEarned: 800);
 
       final qr = await redeemReward(
           db: db, username: 'ana', reward: reward, now: now, newId: fakeId);

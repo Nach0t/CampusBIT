@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'logic/checkout.dart';
 import 'menu_screen.dart';
 import 'ui/app_theme.dart';
 import 'ui/widgets.dart';
@@ -27,23 +28,38 @@ class PuntoRetiroScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Antes decía siempre "Cafeteria Principal".
-                Text(
-                  localName,
+                // El retiro es siempre en la Cafetería; el local AE elegido
+                // es donde se hace el pedido.
+                const Text(
+                  pickupPointName,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: AppColors.texto,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  'Pedido desde $localName',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textoSecundario,
+                  ),
+                ),
                 const SizedBox(height: 16),
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/AECafeteria.png',
-                    height: 200,
-                    fit: BoxFit.cover,
+                // Logo del local: tamaño fijo para que se vea nítido (a lo
+                // ancho de la pantalla se pixelaba).
+                Center(
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/AECafeteria.png',
+                      width: 140,
+                      height: 140,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -90,7 +106,7 @@ class PuntoRetiroScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => MenuScreen(
                           username: username,
-                          pickupPoint: localName,
+                          localName: localName,
                         ),
                       ),
                     );

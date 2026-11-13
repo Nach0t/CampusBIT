@@ -28,7 +28,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       // Key nueva en cada llamada: fuerza a recrear la pantalla.
       key: UniqueKey(),
-      home: const MenuScreen(username: 'ana', pickupPoint: 'Hall'),
+      home: const MenuScreen(username: 'ana', localName: 'Punto Hall'),
     ));
     await settle(tester);
   }
@@ -88,8 +88,8 @@ void main() {
     // Sin método de pago no se compra.
     await tester.tap(find.text('Pagar'));
     await tester.pump();
-    expect(find.text('Por favor, selecciona un método de pago.'),
-        findsOneWidget);
+    expect(
+        find.text('Por favor, selecciona un método de pago.'), findsOneWidget);
     expect(await real(tester, () => db.getQrCodesForUser('ana')), isEmpty);
 
     // Se toca el recuadro de la opción (la imagen no carga en el test).
@@ -105,8 +105,11 @@ void main() {
 
     // Pantalla de QR con los 3 códigos de la compra.
     expect(find.byType(QrCodesScreen), findsOneWidget);
-    expect(find.textContaining('¡Compra realizada por \$5.400!'), findsOneWidget);
+    expect(
+        find.textContaining('¡Compra realizada por \$5.400!'), findsOneWidget);
     expect(find.text('Menú: Promo desayuno'), findsNWidgets(3));
+    // Aunque se pidió en 'Punto Hall', el retiro es en la Cafetería.
+    expect(find.text('Retiro: Cafetería Principal'), findsNWidgets(3));
     expect(await real(tester, () => db.getQrCodesForUser('ana')), hasLength(3));
     expect(await real(tester, () => db.getUserPoints('ana')), 50);
 

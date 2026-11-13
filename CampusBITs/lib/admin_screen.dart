@@ -100,8 +100,7 @@ class _AdminScreenState extends State<AdminScreen> {
       showAppMessage(context, '"${item.name}" eliminado');
     } catch (e) {
       if (!mounted) return;
-      showAppMessage(context, 'Error al eliminar: $e',
-          type: MessageType.error);
+      showAppMessage(context, 'Error al eliminar: $e', type: MessageType.error);
     }
   }
 
@@ -115,8 +114,7 @@ class _AdminScreenState extends State<AdminScreen> {
           type: MessageType.success);
     } catch (e) {
       if (!mounted) return;
-      showAppMessage(context, 'Error al agregar: $e',
-          type: MessageType.error);
+      showAppMessage(context, 'Error al agregar: $e', type: MessageType.error);
     }
   }
 

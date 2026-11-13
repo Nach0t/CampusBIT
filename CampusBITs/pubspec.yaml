@@ -11,19 +11,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   sqflite: ^2.2.9
   path: ^1.8.3
-  provider: ^6.1.2 # Cambiada a una versión compatible
   uuid: ^3.0.6
   qr_flutter: ^4.0.0
   sembast: ^3.2.1
   sembast_web: ^2.4.0+4
-  qr: ^2.1.0
 
 
 dev_dependencies:
   sqflite_common_ffi: ^2.0.1 # Solo para los tests (SQLite en memoria en el PC)
+  integration_test: # Pruebas dentro del emulador o teléfono (incluido en Flutter)
+    sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1 # Lints para mantener el código limpio y consistente

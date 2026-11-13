@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
 
-/// Precio en pesos chilenos con separador de miles: 3300 -> "$3.300".
-String formatPrice(int amount) {
-  final digits = amount.abs().toString();
+/// Número con separador de miles chileno: 4500 -> "4.500".
+String formatNumber(int value) {
+  final digits = value.abs().toString();
   final buffer = StringBuffer();
   for (var i = 0; i < digits.length; i++) {
     if (i > 0 && (digits.length - i) % 3 == 0) buffer.write('.');
     buffer.write(digits[i]);
   }
-  return '${amount < 0 ? '-' : ''}\$$buffer';
+  return '${value < 0 ? '-' : ''}$buffer';
 }
+
+/// Precio en pesos chilenos con separador de miles: 3300 -> "$3.300".
+String formatPrice(int amount) =>
+    '${amount < 0 ? '-' : ''}\$${formatNumber(amount.abs())}';
 
 /// Fecha corta: 10/3/2026 14:05.
 String formatDateTime(DateTime date) {
@@ -254,7 +258,12 @@ Future<bool> confirmAction(
           style: TextButton.styleFrom(
             foregroundColor:
                 destructive ? AppColors.error : AppColors.celesteOscuro,
-            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            // fontFamily explícito: un textStyle propio reemplaza la fuente
+            // del tema (en el teléfono este botón salía en Roboto).
+            textStyle: const TextStyle(
+              fontFamily: appFont,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           child: Text(confirmLabel),
         ),

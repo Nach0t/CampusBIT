@@ -69,7 +69,6 @@ class Cart extends ChangeNotifier {
     notifyListeners();
   }
 
-  int _indexOf(MenuItem item) => _lines.indexWhere((line) => item.id != null
-      ? line.item.id == item.id
-      : line.item.name == item.name);
+  int _indexOf(MenuItem item) => _lines.indexWhere((line) =>
+      item.id != null ? line.item.id == item.id : line.item.name == item.name);
 }

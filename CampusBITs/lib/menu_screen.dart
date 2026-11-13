@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import 'cart_screen.dart';
 import 'data/db_helper.dart';
 import 'logic/cart.dart';
+import 'logic/checkout.dart';
 import 'ui/app_theme.dart';
 import 'ui/widgets.dart';
 
 class MenuScreen extends StatefulWidget {
   final String username;
-  final String pickupPoint;
+
+  /// Local AE donde se hace el pedido (el retiro es siempre en la Cafetería).
+  final String localName;
 
   const MenuScreen({
     super.key,
     required this.username,
-    required this.pickupPoint,
+    required this.localName,
   });
 
   @override
@@ -94,7 +97,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       child: ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          _PickupBanner(pickupPoint: widget.pickupPoint),
+                          _PickupBanner(localName: widget.localName),
                           if (menuItems.isEmpty)
                             const MessageView(
                               icon: Icons.no_food_outlined,
@@ -106,17 +109,15 @@ class _MenuScreenState extends State<MenuScreen> {
                           ],
                           if (almuerzos.isNotEmpty) ...[
                             const SectionTitle('Almuerzos Disponibles'),
-                            for (final item in almuerzos)
-                              _buildMenuCard(item),
+                            for (final item in almuerzos) _buildMenuCard(item),
                           ],
                         ],
                       ),
                     ),
                   ),
       ),
-      bottomNavigationBar: isLoading || errorMessage.isNotEmpty
-          ? null
-          : _buildCartBar(),
+      bottomNavigationBar:
+          isLoading || errorMessage.isNotEmpty ? null : _buildCartBar(),
     );
   }
 
@@ -258,15 +259,14 @@ class _MenuScreenState extends State<MenuScreen> {
                         ? () {
                             // El aviso "agregado al carrito" no debe quedar
                             // encima de la pantalla siguiente.
-                            ScaffoldMessenger.of(context)
-                                .hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => CartScreen(
                                   cart: _cart,
                                   username: widget.username,
-                                  pickupPoint: widget.pickupPoint,
+                                  localName: widget.localName,
                                 ),
                               ),
                             );
@@ -289,9 +289,9 @@ class _MenuScreenState extends State<MenuScreen> {
 }
 
 class _PickupBanner extends StatelessWidget {
-  final String pickupPoint;
+  final String localName;
 
-  const _PickupBanner({required this.pickupPoint});
+  const _PickupBanner({required this.localName});
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +303,7 @@ class _PickupBanner extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Retiro en $pickupPoint',
+              'Pedido en $localName · Retiro en $pickupPointName',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

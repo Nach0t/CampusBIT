@@ -7,8 +7,9 @@ import 'cart.dart';
 /// Tiempo durante el cual un QR de retiro es válido.
 const Duration qrValidity = Duration(hours: 24);
 
-/// Punto de retiro de los premios canjeados con puntos.
-const String rewardPickupPoint = 'Cafeteria';
+/// Único punto de retiro: todo pedido (compra o canje) se retira en la
+/// Cafetería, sin importar en qué local AE se hizo.
+const String pickupPointName = 'Cafetería Principal';
 
 /// Regla de puntos: 10 puntos por cada $1.000 de compra.
 int pointsForAmount(int amount) => (amount ~/ 1000) * 10;
@@ -30,8 +31,9 @@ class CheckoutResult {
   });
 }
 
-/// Paga el contenido del [cart]: genera un QR por unidad y guarda QR,
-/// puntos y movimiento en una sola transacción.
+/// Paga el contenido del [cart]: genera un QR por unidad (para retirar en
+/// [pickupPointName]) y guarda QR, puntos y movimiento en una sola
+/// transacción. [localName] es el local AE donde se hizo el pedido.
 ///
 /// No vacía el carrito: eso lo hace quien llama, solo si la compra se
 /// guardó (así un error no hace perder el pedido).
@@ -39,7 +41,7 @@ Future<CheckoutResult> checkout({
   required AppDatabase db,
   required Cart cart,
   required String username,
-  required String pickupPoint,
+  required String localName,
   DateTime? now,
   String Function() newId = _newUuid,
 }) async {
@@ -55,7 +57,7 @@ Future<CheckoutResult> checkout({
           menuType: line.item.name,
           price: line.item.price,
           username: username,
-          pickupPoint: pickupPoint,
+          pickupPoint: pickupPointName,
           validity: validity,
         ),
   ];
@@ -65,7 +67,8 @@ Future<CheckoutResult> checkout({
     username: username,
     amount: amount,
     pointsEarned: points,
-    description: 'Compra en $pickupPoint (${cart.itemCount} productos)',
+    description: 'Compra en $localName (${cart.itemCount} '
+        '${cart.itemCount == 1 ? 'producto' : 'productos'})',
     qrCodes: codes,
   );
   return CheckoutResult(
@@ -105,7 +108,7 @@ Future<GeneratedQr?> redeemReward({
     menuType: 'Canje: ${reward.name}',
     price: 0,
     username: username,
-    pickupPoint: rewardPickupPoint,
+    pickupPoint: pickupPointName,
     validity: (now ?? DateTime.now()).add(qrValidity),
   );
   final ok = await db.redeemPoints(

@@ -82,55 +82,56 @@ class _LocalCard extends StatelessWidget {
             ),
           );
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Image.asset(
-              'assets/AECafeteria.png',
-              height: 160,
-              fit: BoxFit.cover,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        // AECafeteria.png es un logo, no una foto: a tamaño completo se
+        // recortaba y pixelaba. Se muestra como miniatura junto al nombre.
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/AECafeteria.png',
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.celesteOscuro,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
                       children: [
-                        Text(
-                          localName,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.celesteOscuro,
+                        const Icon(Icons.schedule,
+                            size: 18, color: AppColors.textoSecundario),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'Tiempo de espera: '
+                            '${calcularTiempoEspera(localName)}',
+                            style: const TextStyle(
+                                color: AppColors.textoSecundario),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(Icons.schedule,
-                                size: 18, color: AppColors.textoSecundario),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                'Tiempo de espera: '
-                                '${calcularTiempoEspera(localName)}',
-                                style: const TextStyle(
-                                    color: AppColors.textoSecundario),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
-                  ),
-                  const Icon(Icons.chevron_right,
-                      color: AppColors.celesteOscuro),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              const Icon(Icons.chevron_right, color: AppColors.celesteOscuro),
+            ],
+          ),
         ),
       ),
     );

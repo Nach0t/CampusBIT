@@ -55,18 +55,17 @@ void main() {
 
     test('reconoce los locales concurridos por su nombre real', () {
       // Antes solo funcionaba con 'Cafeteria' o 'Hall' exactos.
-      expect(calcularTiempoEspera('Punto Hall', now: mediodia),
-          '20-30 minutos');
-      expect(calcularTiempoEspera('Punto Casino', now: mediodia),
-          '20-30 minutos');
-      expect(calcularTiempoEspera('Cafeteria', now: mediodia),
-          '20-30 minutos');
+      expect(
+          calcularTiempoEspera('Punto Hall', now: mediodia), '20-30 minutos');
+      expect(
+          calcularTiempoEspera('Punto Casino', now: mediodia), '20-30 minutos');
+      expect(calcularTiempoEspera('Cafeteria', now: mediodia), '20-30 minutos');
     });
 
     test('otros locales usan el cálculo genérico', () {
       // 13 h: 5 + (13 % 3) * 5 = 10 -> '10-20 minutos'
-      expect(calcularTiempoEspera('Punto Domo', now: mediodia),
-          '10-20 minutos');
+      expect(
+          calcularTiempoEspera('Punto Domo', now: mediodia), '10-20 minutos');
     });
   });
 
@@ -113,11 +112,11 @@ void main() {
       'Locales': (() => const LocalesScreen(username: 'ana'), 'Punto Casino'),
       'Punto de retiro': (
         () => const PuntoRetiroScreen(username: 'ana', localName: 'Punto Hall'),
-        'Ver Productos',
+        'Cafetería Principal',
       ),
       'Mapa': (() => const MapScreen(username: 'ana'), 'Punto Carpa'),
       'Menú': (
-        () => const MenuScreen(username: 'ana', pickupPoint: 'Hall'),
+        () => const MenuScreen(username: 'ana', localName: 'Punto Hall'),
         'Promo desayuno',
       ),
       'Carrito': (
@@ -125,10 +124,10 @@ void main() {
               cart: Cart()
                 ..add(const MenuItem(
                     id: 1, name: 'Almuerzo ejecutivo', price: 3500))
-                ..add(const MenuItem(
-                    id: 2, name: 'Promo desayuno', price: 1800)),
+                ..add(
+                    const MenuItem(id: 2, name: 'Promo desayuno', price: 1800)),
               username: 'ana',
-              pickupPoint: 'Punto Estacionamiento',
+              localName: 'Punto Estacionamiento',
             ),
         'Almuerzo ejecutivo',
       ),
