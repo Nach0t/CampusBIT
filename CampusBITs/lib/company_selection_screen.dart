@@ -4,13 +4,13 @@ import 'main_screen.dart';
 class CompanySelectionScreen extends StatelessWidget {
   final String username;
 
-  CompanySelectionScreen({required this.username});
+  const CompanySelectionScreen({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Seleccionar Empresa',
           style: TextStyle(
             fontFamily: 'Exo2',
@@ -18,11 +18,11 @@ class CompanySelectionScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
+        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
         centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente celeste agua
             begin: Alignment.topCenter,
@@ -37,7 +37,7 @@ class CompanySelectionScreen extends StatelessWidget {
               children: [
                 Text(
                   'Bienvenido, $username. Por favor, selecciona la empresa a la que deseas acceder:',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Exo2',
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class CompanySelectionScreen extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 // Botón para USS
                 GestureDetector(
                   onTap: () {
@@ -60,7 +60,7 @@ class CompanySelectionScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 10.0,
@@ -68,7 +68,7 @@ class CompanySelectionScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
                         Image.asset(
@@ -76,8 +76,8 @@ class CompanySelectionScreen extends StatelessWidget {
                           height: 150,
                           fit: BoxFit.cover,
                         ),
-                        SizedBox(height: 8),
-                        Text(
+                        const SizedBox(height: 8),
+                        const Text(
                           '',
                           style: TextStyle(
                             fontFamily: 'Exo2',
@@ -90,12 +90,12 @@ class CompanySelectionScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 // Botón para Otra Empresa
                 GestureDetector(
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text(
                           'Otra empresa no disponible actualmente',
                           style: TextStyle(fontFamily: 'Exo2'),
@@ -108,7 +108,7 @@ class CompanySelectionScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 10.0,
@@ -116,9 +116,11 @@ class CompanySelectionScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
+                    // `const Column` no compila en Flutter 3.50 (assert de CrossAxisAlignment)
+                    // ignore: prefer_const_constructors
                     child: Column(
-                      children: [
+                      children: const [
                         Icon(
                           Icons.business,
                           size: 100,

@@ -7,10 +7,10 @@ import 'profile_screen.dart';
 class MainScreen extends StatefulWidget {
   final String username;
 
-  MainScreen({required this.username});
+  const MainScreen({super.key, required this.username});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
@@ -24,8 +24,8 @@ class _MainScreenState extends State<MainScreen> {
       LocalesScreen(username: widget.username),
       PointsScreen(username: widget.username),
       GenerateQRCodeScreen(
-        purchasedItems: [], // Lista vacía al inicio
-        lol: widget.username, // lol como username
+        purchasedItems: const [], // Lista vacía al inicio
+        username: widget.username, // username como username
         pickupPoint: 'Cafeteria',
       ),
       ProfileScreen(username: widget.username),
@@ -43,11 +43,11 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: Color(0xFF4682B4), // **Celeste oscuro** seleccionado
+        selectedItemColor: const Color(0xFF4682B4), // **Celeste oscuro** seleccionado
         unselectedItemColor: Colors.grey, // **Gris** para no seleccionados
-        backgroundColor: Color(0xFFB0E0E6), // **Celeste agua** para el fondo de la barra
+        backgroundColor: const Color(0xFFB0E0E6), // **Celeste agua** para el fondo de la barra
         type: BottomNavigationBarType.fixed, // Mantener el diseño fijo
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.store),
             label: 'Locales',

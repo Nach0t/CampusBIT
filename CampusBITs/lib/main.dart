@@ -3,10 +3,12 @@ import 'login_screen.dart';
 
 void main() {
   // No necesitas inicializar `sqflite` o `ffi` para web.
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white,
         scaffoldBackgroundColor: Colors.white,
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyMedium: TextStyle(
             fontFamily: 'Exo2',
             fontWeight: FontWeight.w300,
@@ -25,8 +27,8 @@ class MyApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF87CEEB),
-            textStyle: TextStyle(
+            backgroundColor: const Color(0xFF87CEEB),
+            textStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -36,7 +38,7 @@ class MyApp extends StatelessWidget {
             elevation: 5.0,
           ),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF4682B4),
           titleTextStyle: TextStyle(
             fontFamily: 'Exo2',
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }

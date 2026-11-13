@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class MapScreen extends StatefulWidget {
   final String username;
 
-  MapScreen({required this.username});
+  const MapScreen({super.key, required this.username});
 
   @override
-  _MapScreenState createState() => _MapScreenState();
+  State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
@@ -32,18 +32,18 @@ class _MapScreenState extends State<MapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Mapa de AE',
           style: TextStyle(
             fontFamily: 'Exo2',
             fontWeight: FontWeight.w500,
           ),
         ),
-        backgroundColor: Color(0xFF4682B4), // Fondo celeste
+        backgroundColor: const Color(0xFF4682B4), // Fondo celeste
         centerTitle: true,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Gradiente de fondo celeste
             begin: Alignment.topCenter,
@@ -57,7 +57,7 @@ class _MapScreenState extends State<MapScreen> {
               padding: const EdgeInsets.all(16.0),
               child: DropdownButton<String>(
                 value: selectedLocation,
-                hint: Text(
+                hint: const Text(
                   'Selecciona una ubicación',
                   style: TextStyle(fontSize: 18),
                 ),
@@ -97,13 +97,13 @@ class _MapScreenState extends State<MapScreen> {
                           children: [
                             Text(
                               loc['name']!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF4682B4),
                               ),
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12.0), // Bordes redondeados de la imagen
                               child: Image.asset(
@@ -119,7 +119,7 @@ class _MapScreenState extends State<MapScreen> {
                   );
                 },
               )
-                  : Center(
+                  : const Center(
                 child: Text(
                   'No se encontró la ubicación seleccionada.',
                   style: TextStyle(

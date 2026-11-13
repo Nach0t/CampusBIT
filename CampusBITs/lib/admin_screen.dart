@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'DBHelper.dart'; // Conexión con SQLite
+import 'db_helper.dart'; // Conexión con SQLite
 
-class EditPricesScreen extends StatefulWidget {
+class AdminScreen extends StatefulWidget {
+  const AdminScreen({super.key});
+
   @override
-  _EditPricesScreenState createState() => _EditPricesScreenState();
+  State<AdminScreen> createState() => _AdminScreenState();
 }
 
-class _EditPricesScreenState extends State<EditPricesScreen> {
+class _AdminScreenState extends State<AdminScreen> {
   List<Map<String, dynamic>> _menuItems = []; // Lista para almacenar los productos
   bool _isLoading = true; // Indicador de carga
 
@@ -20,11 +22,13 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
     try {
       final dbHelper = DBHelper();
       final items = await dbHelper.getMenuItems();
+      if (!mounted) return;
       setState(() {
         _menuItems = items;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -43,6 +47,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
       await dbHelper.updateMenuItem(id, newPrice, newName);
       _fetchMenuItems(); // Refrescar los datos
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al actualizar: $e'),
@@ -58,6 +63,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
       await dbHelper.deleteMenuItem(id);
       _fetchMenuItems();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al eliminar: $e'),
@@ -70,7 +76,10 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
   Future<void> _addNewMenuItem(String name, int price) async {
     try {
       final dbHelper = DBHelper();
+      await dbHelper.insertMenuItem(name, price, '[]');
+      _fetchMenuItems();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al agregar: $e'),
@@ -84,11 +93,11 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Precios'),
-        backgroundColor: Color(0xFF5B3E96), // Color distintivo
+        title: const Text('Editar Precios'),
+        backgroundColor: const Color(0xFF5B3E96), // Color distintivo
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
         itemCount: _menuItems.length,
         itemBuilder: (context, index) {
@@ -99,7 +108,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
           TextEditingController(text: item['price'].toString());
 
           return Card(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
@@ -109,14 +118,14 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                   Expanded(
                     child: TextField(
                       controller: nameController,
-                      decoration: InputDecoration(labelText: 'Nombre'),
+                      decoration: const InputDecoration(labelText: 'Nombre'),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: priceController,
-                      decoration: InputDecoration(labelText: 'Precio'),
+                      decoration: const InputDecoration(labelText: 'Precio'),
                       keyboardType: TextInputType.number,
                     ),
                   ),
@@ -126,7 +135,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.save, color: Colors.green),
+                    icon: const Icon(Icons.save, color: Colors.green),
                     onPressed: () {
                       final newName = nameController.text.trim();
                       final newPrice = int.tryParse(priceController.text) ?? 0;
@@ -134,7 +143,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                         _updateMenuItem(item['id'], newName, newPrice);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('Nombre o precio inválidos'),
                             backgroundColor: Colors.red,
                           ),
@@ -143,7 +152,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       _deleteMenuItem(item['id']);
                     },
@@ -155,9 +164,9 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFF5B3E96),
+        backgroundColor: const Color(0xFF5B3E96),
         onPressed: _showAddItemDialog,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -169,17 +178,17 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Agregar Nuevo Producto'),
+        title: const Text('Agregar Nuevo Producto'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: 'Nombre'),
+              decoration: const InputDecoration(labelText: 'Nombre'),
             ),
             TextField(
               controller: priceController,
-              decoration: InputDecoration(labelText: 'Precio'),
+              decoration: const InputDecoration(labelText: 'Precio'),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -187,7 +196,7 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -198,14 +207,14 @@ class _EditPricesScreenState extends State<EditPricesScreen> {
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Nombre o precio inválidos'),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
-            child: Text('Agregar'),
+            child: const Text('Agregar'),
           ),
         ],
       ),

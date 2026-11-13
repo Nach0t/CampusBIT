@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'admin_screen.dart';
 import 'company_selection_screen.dart'; // Importamos la pantalla de selección de empresa
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -17,13 +20,19 @@ class _LoginScreenState extends State<LoginScreen> {
     if (username.isEmpty || password.isEmpty) {
       // Mostrar un mensaje de error si los campos están vacíos
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'Por favor, ingresa un nombre de usuario y una contraseña.',
             style: TextStyle(fontFamily: 'Exo2'),
           ),
           backgroundColor: Colors.redAccent,
         ),
+      );
+    } else if (username == 'admin' && password == 'admin') {
+      // Acceso de administración (credenciales de demo del prototipo)
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminScreen()),
       );
     } else {
       // Navegar a la pantalla de selección de empresa
@@ -42,9 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF4682B4),
+        backgroundColor: const Color(0xFF4682B4),
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Bienvenido a CampusBite',
           style: TextStyle(
             fontFamily: 'Exo2',
@@ -59,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Fondo con gradiente
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -76,9 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(24.0),
                   margin: const EdgeInsets.only(top: 50.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 15.0,
@@ -94,70 +103,70 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 200,
                         fit: BoxFit.contain,
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       // Campo de texto: Usuario
                       TextField(
                         controller: _usernameController,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Exo2',
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: InputDecoration(
                           hintText: 'USUARIO',
-                          hintStyle: TextStyle(
+                          hintStyle: const TextStyle(
                             color: Colors.white,
                             fontFamily: 'Exo2',
                           ),
                           filled: true,
-                          fillColor: Color(0xFF5F9EA0),
+                          fillColor: const Color(0xFF5F9EA0),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
                           ),
                           contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       // Campo de texto: Contraseña
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Exo2',
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: InputDecoration(
                           hintText: 'CONTRASEÑA',
-                          hintStyle: TextStyle(
+                          hintStyle: const TextStyle(
                             color: Colors.white,
                             fontFamily: 'Exo2',
                           ),
                           filled: true,
-                          fillColor: Color(0xFF5F9EA0),
+                          fillColor: const Color(0xFF5F9EA0),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide.none,
                           ),
                           contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                         ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       // Botón de ingresar
                       ElevatedButton(
                         onPressed: _validateAndNavigate,
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 64.0, vertical: 20.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 64.0, vertical: 20.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          backgroundColor: Color(0xFF4682B4),
+                          backgroundColor: const Color(0xFF4682B4),
                           elevation: 5,
                         ),
-                        child: Text(
+                        child: const Text(
                           'INGRESAR',
                           style: TextStyle(
                             color: Colors.white,
@@ -166,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
                       Text(
                         'Todos los derechos reservados para CampusBite',
                         style: TextStyle(

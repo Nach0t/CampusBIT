@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'cart_screen.dart';
-import 'DBHelper.dart';
+import 'db_helper.dart';
 
 class MenuScreen extends StatefulWidget {
   final String username;
 
-  MenuScreen({required this.username});
+  const MenuScreen({super.key, required this.username});
 
   @override
-  _MenuScreenState createState() => _MenuScreenState();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
 class _MenuScreenState extends State<MenuScreen> {
@@ -73,16 +73,16 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Menú de Compra',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF4682B4),
+        backgroundColor: const Color(0xFF4682B4),
         elevation: 5.0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
             begin: Alignment.topCenter,
@@ -90,12 +90,12 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ),
         child: isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : errorMessage.isNotEmpty
             ? Center(
           child: Text(
             errorMessage,
-            style: TextStyle(color: Colors.red, fontSize: 18),
+            style: const TextStyle(color: Colors.red, fontSize: 18),
           ),
         )
             : Column(
@@ -107,7 +107,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Promoción Semanal:',
                         style: TextStyle(
                           fontSize: 22,
@@ -115,22 +115,22 @@ class _MenuScreenState extends State<MenuScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       _buildPromoItem(
                         'Promo desayuno',
                         1800,
                         ['assets/PromoDesayuno.png', 'assets/Cafe.png'],
                         'PAN CON PALTA JAMÓN + CAFÉ EXPRESO PEQUEÑO',
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       _buildPromoItem(
                         'Promo almuerzo',
                         2500,
                         ['assets/PromoAlmuerzo.png', 'assets/Cafe.png'],
                         'SAND CHEESEBURGER BBQ + BEBIDA MÁQUINA O JUGO 200 CC',
                       ),
-                      SizedBox(height: 32),
-                      Text(
+                      const SizedBox(height: 32),
+                      const Text(
                         'Almuerzos Disponibles:',
                         style: TextStyle(
                           fontSize: 22,
@@ -138,7 +138,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       _buildAlmuerzoSection(menuItems),
                     ],
                   ),
@@ -155,7 +155,7 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget _buildPromoItem(
       String name, int price, List<String> imagePaths, String description) {
     return Card(
-      color: Colors.white.withOpacity(0.1),
+      color: Colors.white.withValues(alpha: 0.1),
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
@@ -167,14 +167,14 @@ class _MenuScreenState extends State<MenuScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               '$name - \$$price',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          Container(
+          SizedBox(
             height: 150,
             child: ListView(
               scrollDirection: Axis.horizontal,
@@ -197,7 +197,7 @@ class _MenuScreenState extends State<MenuScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
             child: Text(
               description,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -211,13 +211,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 _addToCart({'name': name, 'price': price});
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4682B4),
+                backgroundColor: const Color(0xFF4682B4),
                 elevation: 3.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
-              child: Text('Añadir', style: TextStyle(color: Colors.white)),
+              child: const Text('Añadir', style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
@@ -227,7 +227,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   Widget _buildAlmuerzoSection(List<Map<String, dynamic>> almuerzos) {
     return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: almuerzos.length,
       itemBuilder: (context, index) {
@@ -240,7 +240,7 @@ class _MenuScreenState extends State<MenuScreen> {
             item['description'] ?? 'Descripción no disponible';
 
         return Card(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           elevation: 3,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
@@ -252,14 +252,14 @@ class _MenuScreenState extends State<MenuScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   '${item['name']} - \$${item['price']}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 150,
                 child: images.isNotEmpty
                     ? ListView(
@@ -278,7 +278,7 @@ class _MenuScreenState extends State<MenuScreen> {
                     );
                   }).toList(),
                 )
-                    : Center(
+                    : const Center(
                   child: Text(
                     'No hay imágenes',
                     style: TextStyle(color: Colors.white),
@@ -289,7 +289,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: Text(
                   description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -303,13 +303,13 @@ class _MenuScreenState extends State<MenuScreen> {
                     _addToCart(item);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF4682B4),
+                    backgroundColor: const Color(0xFF4682B4),
                     elevation: 3.0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  child: Text('Añadir', style: TextStyle(color: Colors.white)),
+                  child: const Text('Añadir', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
@@ -328,11 +328,11 @@ class _MenuScreenState extends State<MenuScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.shopping_cart, color: Colors.white),
-              SizedBox(width: 8),
+              const Icon(Icons.shopping_cart, color: Colors.white),
+              const SizedBox(width: 8),
               Text(
                 'Carrito (${getCartItemCount()})',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                 ),
@@ -363,7 +363,7 @@ class _MenuScreenState extends State<MenuScreen> {
             child: Text(
               'Ir al Carrito',
               style: TextStyle(
-                color: cartItems.isNotEmpty ? Color(0xFF4682B4) : Colors.grey,
+                color: cartItems.isNotEmpty ? const Color(0xFF4682B4) : Colors.grey,
               ),
             ),
           ),

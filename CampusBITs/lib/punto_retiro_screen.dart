@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'MenuScreen.dart';
+import 'menu_screen.dart';
 import 'wait_time_utils.dart'; // Importamos la lógica del tiempo de espera
 
 class PuntoRetiroScreen extends StatelessWidget {
   final String username;
   final String localName;
 
-  PuntoRetiroScreen({required this.username, required this.localName});
+  const PuntoRetiroScreen({super.key, required this.username, required this.localName});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Punto de Retiro',
           style: TextStyle(
             color: Colors.white,
@@ -21,11 +21,11 @@ class PuntoRetiroScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF4682B4),
+        backgroundColor: const Color(0xFF4682B4),
         elevation: 5.0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
             begin: Alignment.topCenter,
@@ -37,7 +37,7 @@ class PuntoRetiroScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Cafeteria Principal',
                 style: TextStyle(
                   fontSize: 28,
@@ -47,14 +47,14 @@ class PuntoRetiroScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _buildImageCard(),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 10.0,
@@ -65,7 +65,7 @@ class PuntoRetiroScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'Tiempo de espera aproximado:',
                       style: TextStyle(
                         fontSize: 20,
@@ -74,10 +74,10 @@ class PuntoRetiroScreen extends StatelessWidget {
                         fontFamily: 'Exo2',
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       calcularTiempoEspera(localName),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Color(0xFF4682B4),
                         fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class PuntoRetiroScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -98,14 +98,14 @@ class PuntoRetiroScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 48.0, vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 16.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  backgroundColor: Color(0xFF4682B4),
+                  backgroundColor: const Color(0xFF4682B4),
                   elevation: 5,
                 ),
-                child: Text(
+                child: const Text(
                   'Ver Productos',
                   style: TextStyle(
                     color: Colors.white,
@@ -125,9 +125,9 @@ class PuntoRetiroScreen extends StatelessWidget {
   Widget _buildImageCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 10.0,

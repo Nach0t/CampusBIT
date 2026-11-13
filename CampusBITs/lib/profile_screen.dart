@@ -4,21 +4,21 @@ import 'login_screen.dart'; // Asegúrate de importar la pantalla de login corre
 class ProfileScreen extends StatelessWidget {
   final String username;
 
-  ProfileScreen({required this.username});
+  const ProfileScreen({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Mi Perfil',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
+        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo con gradiente
             begin: Alignment.topCenter,
@@ -32,9 +32,9 @@ class ProfileScreen extends StatelessWidget {
               margin: const EdgeInsets.all(16.0),
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2), // Fondo translúcido
+                color: Colors.white.withValues(alpha: 0.2), // Fondo translúcido
                 borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 10.0,
@@ -44,14 +44,16 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 60,
-                    backgroundImage: AssetImage('assets/profile_placeholder.png'), // Imagen de perfil
+                    // La imagen 'profile_placeholder.png' no existía en assets/
+                    backgroundColor: Color(0xFF4682B4),
+                    child: Icon(Icons.person, size: 64, color: Colors.white),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     username,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -71,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       // Acción para Métodos de Pago
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navegando a Métodos de Pago...')),
+                        const SnackBar(content: Text('Navegando a Métodos de Pago...')),
                       );
                     },
                   ),
@@ -81,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       // Acción para Historial de Pedidos
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navegando a Historial de Pedidos...')),
+                        const SnackBar(content: Text('Navegando a Historial de Pedidos...')),
                       );
                     },
                   ),
@@ -91,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       // Acción para Configuraciones
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navegando a Configuraciones...')),
+                        const SnackBar(content: Text('Navegando a Configuraciones...')),
                       );
                     },
                   ),
@@ -103,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginScreen(),
+                          builder: (context) => const LoginScreen(),
                         ),
                             (Route<dynamic> route) => false, // Elimina el historial
                       );
@@ -131,9 +133,9 @@ class ProfileScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2), // Fondo translúcido
+            color: Colors.white.withValues(alpha: 0.2), // Fondo translúcido
             borderRadius: BorderRadius.circular(16.0),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
                 blurRadius: 5.0,
@@ -144,17 +146,17 @@ class ProfileScreen extends StatelessWidget {
           child: Row(
             children: [
               Icon(icon, color: Colors.white, size: 30),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              Spacer(),
-              Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+              const Spacer(),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
             ],
           ),
         ),

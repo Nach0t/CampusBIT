@@ -5,10 +5,10 @@ class CartScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems; // Lista de productos en el carrito
   final String username;
 
-  CartScreen({required this.cartItems, required this.username});
+  const CartScreen({super.key, required this.cartItems, required this.username});
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  State<CartScreen> createState() => _CartScreenState();
 }
 
 class _CartScreenState extends State<CartScreen> {
@@ -35,6 +35,7 @@ class _CartScreenState extends State<CartScreen> {
 
       // Actualizar los puntos del usuario
       await _updateUserPoints(earnedPoints);
+      if (!mounted) return;
 
       // Navegar a la pantalla de generación de QR
       Navigator.push(
@@ -42,7 +43,7 @@ class _CartScreenState extends State<CartScreen> {
         MaterialPageRoute(
           builder: (context) => GenerateQRCodeScreen(
             purchasedItems: widget.cartItems,
-            lol: widget.username,
+            username: widget.username,
             pickupPoint: 'Cafeteria',
           ),
         ),
@@ -54,7 +55,7 @@ class _CartScreenState extends State<CartScreen> {
             widget.cartItems.isEmpty
                 ? 'Por favor, agrega productos al carrito.'
                 : 'Por favor, selecciona un método de pago.',
-            style: TextStyle(fontFamily: 'Exo2'),
+            style: const TextStyle(fontFamily: 'Exo2'),
           ),
           backgroundColor: Colors.redAccent,
         ),
@@ -72,14 +73,14 @@ class _CartScreenState extends State<CartScreen> {
     */
 
     // Simulación de actualización en consola
-    print('Se han agregado $earnedPoints puntos al usuario ${widget.username}');
+    debugPrint('Se han agregado $earnedPoints puntos al usuario ${widget.username}');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Carrito de Compra',
           style: TextStyle(
             fontFamily: 'Exo2',
@@ -87,10 +88,10 @@ class _CartScreenState extends State<CartScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
+        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado celeste
             begin: Alignment.topCenter,
@@ -101,7 +102,7 @@ class _CartScreenState extends State<CartScreen> {
           children: [
             Expanded(
               child: widget.cartItems.isEmpty
-                  ? Center(
+                  ? const Center(
                 child: Text(
                   'Tu carrito está vacío.',
                   style: TextStyle(
@@ -117,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
                 itemBuilder: (context, index) {
                   final item = widget.cartItems[index];
                   return Card(
-                    color: Colors.white.withOpacity(0.8), // Fondo blanco translúcido
+                    color: Colors.white.withValues(alpha: 0.8), // Fondo blanco translúcido
                     elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
@@ -126,7 +127,7 @@ class _CartScreenState extends State<CartScreen> {
                     child: ListTile(
                       title: Text(
                         '${item['name']} - \$${item['price']}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF4682B4),
                           fontSize: 18,
                           fontFamily: 'Exo2',
@@ -134,7 +135,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.redAccent),
+                        icon: const Icon(Icons.delete, color: Colors.redAccent),
                         onPressed: () => _removeItem(index),
                       ),
                     ),
@@ -143,17 +144,17 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xFF5F9EA0), // Celeste oscuro para la sección inferior
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
               ),
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     'Total: \$${getTotalPrice()}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -161,8 +162,8 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 16),
+                  const Text(
                     'Selecciona un método de pago:',
                     style: TextStyle(
                       color: Colors.white,
@@ -172,7 +173,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -181,17 +182,17 @@ class _CartScreenState extends State<CartScreen> {
                       _buildPaymentOption(3, 'assets/MercadoLibre.png'),
                     ],
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _proceedToQR,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      backgroundColor: Color(0xFF4682B4), // Botón principal
+                      backgroundColor: const Color(0xFF4682B4), // Botón principal
                     ),
-                    child: Text(
+                    child: const Text(
                       'Pagar',
                       style: TextStyle(
                         color: Colors.white,
@@ -220,7 +221,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: selectedOption == option ? Color(0xFF4682B4) : Color(0xFF5F9EA0),
+          color: selectedOption == option ? const Color(0xFF4682B4) : const Color(0xFF5F9EA0),
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Image.asset(

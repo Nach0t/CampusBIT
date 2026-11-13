@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'DBHelper.dart';
+import 'db_helper.dart';
 
 class QrHistoryScreen extends StatefulWidget {
   final String username; // Usuario actual
 
-  QrHistoryScreen({required this.username});
+  const QrHistoryScreen({super.key, required this.username});
 
   @override
-  _QrHistoryScreenState createState() => _QrHistoryScreenState();
+  State<QrHistoryScreen> createState() => _QrHistoryScreenState();
 }
 
 class _QrHistoryScreenState extends State<QrHistoryScreen> {
@@ -55,20 +55,20 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Historial de QR'),
-        backgroundColor: Color(0xFF5B3E96),
+        title: const Text('Historial de QR'),
+        backgroundColor: const Color(0xFF5B3E96),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
           ? Center(
         child: Text(
           errorMessage,
-          style: TextStyle(fontSize: 18, color: Colors.red),
+          style: const TextStyle(fontSize: 18, color: Colors.red),
         ),
       )
           : qrHistory.isEmpty
-          ? Center(
+          ? const Center(
         child: Text(
           'No hay QR generados.',
           style: TextStyle(fontSize: 18),
@@ -79,11 +79,11 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
         itemBuilder: (context, index) {
           final qrData = qrHistory[index];
           return Card(
-            margin: EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
             child: ListTile(
               title: Text(
                 'Menú: ${qrData['menuType']}',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +92,7 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
                   Text('Punto de Retiro: ${qrData['pickupPoint']}'),
                   Text(
                     'Validez: ${DateTime.parse(qrData['validity']).toLocal()}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -101,7 +101,7 @@ class _QrHistoryScreenState extends State<QrHistoryScreen> {
                 children: [
                   // Botón para eliminar QR
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       _deleteQr(qrData['id']);
                     },

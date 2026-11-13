@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:campus_bit_app/company_selection_screen.dart';
 import 'package:campus_bit_app/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('La app inicia en la pantalla de login', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Bienvenido a CampusBite'), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(2));
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Login con campos vacíos muestra un error', (tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(
+      find.text('Por favor, ingresa un nombre de usuario y una contraseña.'),
+      findsOneWidget,
+    );
+    expect(find.byType(CompanySelectionScreen), findsNothing);
+  });
+
+  testWidgets('Login válido navega a la selección de empresa', (tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.enterText(find.byType(TextField).at(0), 'alumno');
+    await tester.enterText(find.byType(TextField).at(1), '1234');
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CompanySelectionScreen), findsOneWidget);
   });
 }

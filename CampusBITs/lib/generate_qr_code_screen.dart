@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'QrDetailScreen.dart';
-import 'QrHistoryScreen.dart';
-import 'DBHelper.dart';
+import 'qr_detail_screen.dart';
+import 'db_helper.dart';
 import 'package:uuid/uuid.dart';
 
 class GenerateQRCodeScreen extends StatefulWidget {
   final List<Map<String, dynamic>> purchasedItems;
-  final String lol; // Nombre de usuario
+  final String username; // Nombre de usuario
   final String pickupPoint; // Punto de retiro
 
-  GenerateQRCodeScreen({
+  const GenerateQRCodeScreen({super.key, 
     required this.purchasedItems,
-    required this.lol,
+    required this.username,
     required this.pickupPoint,
   });
 
   @override
-  _GenerateQRCodeScreenState createState() => _GenerateQRCodeScreenState();
+  State<GenerateQRCodeScreen> createState() => _GenerateQRCodeScreenState();
 }
 
 class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
@@ -33,7 +31,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
   }
 
   Future<void> _generateAndLoadQrData() async {
-    final uuid = Uuid();
+    const uuid = Uuid();
     try {
       if (widget.purchasedItems.isNotEmpty) {
         for (var item in widget.purchasedItems) {
@@ -41,16 +39,16 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
             'id': uuid.v4(),
             'menuType': item['name'] ?? 'Sin nombre',
             'price': item['price'] ?? 0,
-            'username': widget.lol,
+            'username': widget.username,
             'pickupPoint': widget.pickupPoint,
-            'validity': DateTime.now().add(Duration(hours: 24)).toIso8601String(),
+            'validity': DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
           };
 
           await _dbHelper.insertGeneratedQr(qrData);
         }
       }
 
-      final data = await _dbHelper.getQrForUser(widget.lol);
+      final data = await _dbHelper.getQrForUser(widget.username);
       setState(() {
         _qrList = data;
         isLoading = false;
@@ -88,7 +86,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Generar QR',
           style: TextStyle(
             fontFamily: 'Exo2',
@@ -97,21 +95,21 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF4682B4),
+        backgroundColor: const Color(0xFF4682B4),
         elevation: 5.0,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
           ? Center(
         child: Text(
           errorMessage,
-          style: TextStyle(fontSize: 18, color: Colors.red),
+          style: const TextStyle(fontSize: 18, color: Colors.red),
           textAlign: TextAlign.center,
         ),
       )
           : Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)],
             begin: Alignment.topCenter,
@@ -119,7 +117,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
           ),
         ),
         child: _qrList.isEmpty
-            ? Center(
+            ? const Center(
           child: Text(
             'No hay códigos QR disponibles.',
             style: TextStyle(
@@ -138,8 +136,8 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
               onLongPress: () => _deleteQr(qr['id']), // Permite eliminar QR con presión larga
               onTap: () => _showQrDetails(qr),
               child: Card(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Colors.white.withOpacity(0.1),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.white.withValues(alpha: 0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -147,17 +145,17 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                     children: [
                       Text(
                         'Menú: ${qr['menuType']}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           fontFamily: 'Exo2',
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Usuario: ${qr['username']}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
                           fontFamily: 'Exo2',
@@ -165,7 +163,7 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                       ),
                       Text(
                         'Punto de Retiro: ${qr['pickupPoint']}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
                           fontFamily: 'Exo2',
@@ -173,13 +171,13 @@ class _GenerateQRCodeScreenState extends State<GenerateQRCodeScreen> {
                       ),
                       Text(
                         'Validez hasta: ${DateTime.parse(qr['validity']).toLocal()}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
                           fontFamily: 'Exo2',
                         ),
                       ),
-                      Align(
+                      const Align(
                         alignment: Alignment.centerRight,
                         child: Icon(
                           Icons.qr_code,

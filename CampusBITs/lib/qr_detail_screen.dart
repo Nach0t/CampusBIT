@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class QRScreen extends StatelessWidget {
+class QrDetailScreen extends StatelessWidget {
   final Map<String, dynamic> qrData;
 
-  QRScreen({required this.qrData});
+  const QrDetailScreen({super.key, required this.qrData});
 
   String formatValidity(String validity) {
     try {
@@ -25,10 +25,10 @@ class QRScreen extends StatelessWidget {
         qrData['price'] == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Detalles del QR'),
-          backgroundColor: Color(0xFF87CEEB),
+          title: const Text('Detalles del QR'),
+          backgroundColor: const Color(0xFF87CEEB),
         ),
-        body: Center(
+        body: const Center(
           child: Text(
             'Datos del QR incompletos o inválidos.',
             style: TextStyle(fontSize: 18, color: Colors.red),
@@ -39,14 +39,14 @@ class QRScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Detalles del QR',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Color(0xFF87CEEB), // Celeste agua
+        backgroundColor: const Color(0xFF87CEEB), // Celeste agua
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado
             begin: Alignment.topCenter,
@@ -57,7 +57,7 @@ class QRScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Detalles del QR',
               style: TextStyle(
                 fontSize: 24,
@@ -65,19 +65,19 @@ class QRScreen extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildDetailRow('Menú', qrData['menuType']),
             _buildDetailRow('Usuario', qrData['username']),
             _buildDetailRow('Punto de Retiro', qrData['pickupPoint']),
             _buildDetailRow('Validez', formatValidity(qrData['validity'])),
             _buildDetailRow('Precio', "\$${qrData['price']}"),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.0),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 10.0,
@@ -92,17 +92,17 @@ class QRScreen extends StatelessWidget {
                 backgroundColor: Colors.white,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF87CEEB), // Botón celeste agua
-                padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
+                backgroundColor: const Color(0xFF87CEEB), // Botón celeste agua
+                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Regresar',
                 style: TextStyle(
                   fontSize: 18,
@@ -125,7 +125,7 @@ class QRScreen extends StatelessWidget {
         children: [
           Text(
             '$label:',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -134,7 +134,7 @@ class QRScreen extends StatelessWidget {
           Flexible(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white70,
               ),

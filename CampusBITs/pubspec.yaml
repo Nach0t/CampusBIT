@@ -33,31 +33,7 @@ flutter:
 
   # Archivos de recursos de la app
   assets:
-    - assets/uss_logo.png
-    - assets/otros.png
-    - assets/qr_code.png
-    - assets/trasbank.png
-    - assets/webpay.png
-    - assets/MercadoLibre.png
-    - assets/AECafeteria.png
-    - assets/LogoAPP.png
-    - assets/MapaUSS.png
-    - assets/PromoDesayuno.png
-    - assets/PromoAlmuerzo.png
-    - assets/Cafe.png
-    - assets/MapaCacino.png
-    - assets/MapaCarpa.png
-    - assets/MapaDomo.png
-    - assets/MapaEstacionamiento.png
-    - assets/MapaFuncionarios.png
-    - assets/MapaHall.png
-    - assets/MapaHospital.png
-    - assets/Pollo.png
-    - assets/Consome.png
-    - assets/Jugo.png
-    - assets/Ensa.png
-    - assets/Bawl.png
-    - assets/Vegano.png
+    - assets/
 
 
 

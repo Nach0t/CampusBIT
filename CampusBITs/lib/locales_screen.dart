@@ -6,7 +6,7 @@ import 'map_screen.dart'; // Importamos la pantalla del mapa
 class LocalesScreen extends StatelessWidget {
   final String username;
 
-  LocalesScreen({required this.username});
+  const LocalesScreen({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +24,19 @@ class LocalesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Locales',
           style: TextStyle(
             fontFamily: 'Exo2',
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF4682B4), // Celeste oscuro
+        backgroundColor: const Color(0xFF4682B4), // Celeste oscuro
         centerTitle: true,
         elevation: 5.0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB0E0E6), Color(0xFF87CEEB)], // Fondo degradado
             begin: Alignment.topCenter,
@@ -57,13 +57,13 @@ class LocalesScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF4682B4),
-                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+                  backgroundColor: const Color(0xFF4682B4),
+                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Ir al Mapa',
                   style: TextStyle(
                     color: Colors.white,
@@ -115,9 +115,9 @@ class LocalesScreen extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16.0),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16.0),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 10.0,
@@ -130,19 +130,19 @@ class LocalesScreen extends StatelessWidget {
           children: [
             Text(
               localName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF4682B4),
                 fontFamily: 'Exo2',
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               description,
-              style: TextStyle(color: Colors.black87, fontSize: 16),
+              style: const TextStyle(color: Colors.black87, fontSize: 16),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 color: Colors.black, // Fondo negro detrás de la imagen
@@ -158,10 +158,10 @@ class LocalesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Tiempo de espera: $tiempoEspera',
-              style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
             ),
           ],
         ),
